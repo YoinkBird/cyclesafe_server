@@ -3,8 +3,10 @@ A minimal HTTP server in python. It sends a JSON Hello World for GET requests, a
 > python server.py 8009
 > Starting httpd on port 8009...
 
+
 > curl http://localhost:8009
 > {"received": "ok", "hello": "world"}
+
 
 > curl --data "{\"this\":\"is a test\"}" --header "Content-Type: application/json" http://localhost:8009
 > {"this": "is a test", "received": "ok"}
