@@ -17,7 +17,7 @@ curl --data "{\"this\":\"is a test\"}" --header "Content-Type: application/json"
 
 Adapted from [this Gist](https://gist.github.com/bradmontgomery/2219997), with the addition of code for reading the request body taken from [this article](http://mafayyaz.wordpress.com/2013/02/08/writing-simple-http-server-in-python-with-rest-and-json/).
 
-Please be careful when using a server like this on production environments, because it lacks many important features (threading to name one). You can consult [the python documentation about BaseHTTPServer](https://docs.python.org/2/library/basehttpserver.html) to improve it.
+Please be careful when using a server like this on production environments, because it lacks many important features (threading to name one). You can consult [the python documentation about BaseHTTPServer](https://docs.python.org/2/library/basehttpserver.html) to learn something useful to improve it.
 
 If you are on Ubuntu, you can install this code as a service with an init script (hopefully, with some modifications that make it actually do something useful). Just modify the include `server.conf` to suit your needs (possibly renaming it and redirecting output to some log files instead of `/dev/null`), and copy it into `/etc/init/`. You can then start/stop/restart the server with the usual `service` command:
 
