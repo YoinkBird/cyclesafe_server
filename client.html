@@ -14,35 +14,35 @@
   another style, better varnames, explicit mention of async
  */
 /* send json */
-var xhr_post = new XMLHttpRequest();
-var xhr_get  = new XMLHttpRequest();
 var url = "http://localhost:8009";
-xhr_post.open("POST",url,true)
-xhr_post.setRequestHeader("Content-type", "application/json");
-// async - see the second source
-xhr_post.onreadystatechange = function (){
-  if (xhr_post.readyState == 4 && xhr_post.status == 200){
-    // callback(xhr_post.responseText);
-    var jsonresp = JSON.parse(xhr_post.responseText);
-    console.log('--- POST response received');
-    console.log(JSON.stringify(jsonresp));
-  }
-};
+function setVarAndLog(xhr){
+  // callback(xhr.responseText);
+  var jsonresp = JSON.parse(xhr.responseText);
+  console.log('--- POST response received');
+  console.log(JSON.stringify(jsonresp));
+}
+function httpPostAsync(myUrl, sendString, callback){
+  var xhr_post = new XMLHttpRequest();
+  xhr_post.open("POST",myUrl,true); // true : async
+  xhr_post.setRequestHeader("Content-type", "application/json");
+  // async - see the second source
+  xhr_post.onreadystatechange = function (){
+    if (xhr_post.readyState == 4 && xhr_post.status == 200){
+      callback(xhr_post);
+    }
+  };
+  xhr_post.send(sendString);
+}
 console.log('--- POST request sending');
 // TODO: verify response. this particular server returns the same json_str it received
-xhr_post.send(JSON.stringify({"lol":"hey"}));
+httpPostAsync(url, JSON.stringify({"lol":"hey"}), setVarAndLog);
+
 console.log('--- POST request sent');
 
 /* receive json */
 /* TODO: async this thingy, forgot how to callbacks though.
  * current method may already be using a callback to set the var.
  */
-// this url is a simple single-serving for now. no REST API
-xhr_get.open("GET",url,true);
-xhr_get.setRequestHeader("Content-type", "application/json");
-console.log('--- GET request sending');
-xhr_get.send(null);
-console.log('--- GET request sent');
 
 // async notes:
 // assigned before request complete
@@ -51,18 +51,31 @@ console.log('--- GET request sent');
 // console.log(JSON.stringify(muhjaysawns));
 var muhjaysawns;
 
-// async
-xhr_get.onreadystatechange = function (){
-  if (xhr_get.readyState == 4 && xhr_get.status == 200){
-    // callback(xhr.responseText);
-    muhjaysawns = JSON.parse(xhr_get.responseText);
-    if(1){
-      console.log('--- GET response received');
-      console.log(JSON.stringify(muhjaysawns));
-    }
+function setJsonVarAndLog(xhr){
+  muhjaysawns = JSON.parse(xhr.responseText);
+  if(1){
+    console.log('--- GET response received');
+    console.log(JSON.stringify(muhjaysawns));
   }
-};
+}
 
+function httpGetAsync(myUrl, callback){
+  var xhr_get  = new XMLHttpRequest();
+  xhr_get.open("GET",url,true);
+  xhr_get.setRequestHeader("Content-type", "application/json");
+  // async
+  xhr_get.onreadystatechange = function (){
+    if (xhr_get.readyState == 4 && xhr_get.status == 200){
+      callback(xhr_get);
+    }
+  };
+  xhr_get.send(null);
+}
+
+console.log('--- GET request sending');
+// this url is a simple single-serving for now. no REST API
+httpGetAsync(url, setJsonVarAndLog);
+console.log('--- GET request sent');
 
 // blocking
 if(0){
