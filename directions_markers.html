@@ -133,7 +133,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
             document.getElementById('warnings-panel').innerHTML =
                 '<b>' + response.routes[0].warnings + '</b>';
             directionsDisplay.setDirections(response);
-            showSteps(response, markerArray, stepDisplay, map);
+            showSteps(response, res_scores, markerArray, stepDisplay, map);
           } else {
             window.alert('Directions request failed due to ' + status);
           }
@@ -141,7 +141,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
       }
 
       // called only 1x : calculateAndDisplayRoute
-      function showSteps(directionResult, markerArray, stepDisplay, map) {
+      function showSteps(directionResult, scoreResult, markerArray, stepDisplay, map) {
         // For each step, place a marker, and add the text to the marker's infowindow.
         // Also attach the marker to an array so we can keep track of it and remove it
         // when calculating new routes.
@@ -152,6 +152,32 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
           marker.setPosition(myRoute.steps[i].start_location);
           attachInstructionText(
               stepDisplay, marker, myRoute.steps[i].instructions, map);
+        }
+        // json_server_api : add the scores here
+        // TODO: verify that model.py using 'steps' and not 'overview_path'
+        for (var i = 0; i < scoreResult.length; i++) {
+          var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
+          /*
+          var marker = new google.maps.Marker({
+            position: {lat: crash[1], lng: crash[2]},
+            map: map,
+            icon: crash[4],
+            shape: shape,
+            draggable: true,
+            title: htmlEntities(crash[0]),
+            visible: false,
+            zIndex: crash[3]
+            });
+            */
+          marker.setMap(map);
+
+          //marker.setPosition({'lat':30.1,lng: 40.2})
+          var tmploc = {'lat': scoreResult[i]['lat'], 'lng': scoreResult[i]['lng']};
+          var score = scoreResult[i]['score'];
+          marker.setPosition(tmploc);
+          attachInstructionText(
+              //stepDisplay, marker, "score: " + score + "\n" + myRoute.steps[i].instructions, map);
+              stepDisplay, marker, "score: " + score + "\n", map);
         }
       }
 
