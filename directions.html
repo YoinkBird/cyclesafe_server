@@ -94,11 +94,14 @@ function httpPostAsync(myUrl, sendString, callback){
   };
   xhr_post.send(sendString);
 }
-console.log('--- POST request sending');
-// TODO: verify response. this particular server returns the same json_str it received
-httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
 
-console.log('--- POST request sent');
+// demo usage
+if(0){
+  console.log('--- POST request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  console.log('--- POST request sent');
+}
 
 /* receive json */
 /* TODO: async this thingy, forgot how to callbacks though.
@@ -133,10 +136,13 @@ function httpGetAsync(myUrl, callback){
   xhr_get.send(null);
 }
 
-console.log('--- GET request sending');
-// this url is a simple single-serving for now. no REST API
-httpGetAsync(urlJsonServer, setJsonVarAndLog);
-console.log('--- GET request sent');
+// demo usage
+if(0){
+  console.log('--- GET request sending');
+  // this url is a simple single-serving for now. no REST API
+  httpGetAsync(urlJsonServer, setJsonVarAndLog);
+  console.log('--- GET request sent');
+}
 
 // blocking
 if(0){
@@ -146,6 +152,38 @@ if(0){
   console.log('--- blocking GET request sent');
   var muhjaysawns = JSON.stringify(xhr.responseText);
   console.log(JSON.stringify(muhjaysawns));
+}
+
+/*-------------------------------------------------------------------------------- */ 
+/* send json, receive response */
+// alternative to promises... rabit hole!
+// i.e. can't call httpGetAsync with callback on its own XMLHttpRequest
+function httpPostSyncAndGetAsync(myUrl, sendString, callback){
+  console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
+  var xhr_post = new XMLHttpRequest();
+  // sync post
+  xhr_post.open("POST",myUrl,false); // true : async, false: sync
+  xhr_post.setRequestHeader("Content-type", "application/json");
+
+  xhr_post.send(sendString);
+  console.log(JSON.stringify(xhr_post.responseText));
+
+  // async get
+  console.log('--- GET request sending');
+  httpGetAsync(urlJsonServer, setJsonVarAndLog);
+  console.log('--- GET request sent');
+}
+
+// demo usage
+if(0){
+  console.log('--- POST-and-GET request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  // mock "response" from directions example
+  var response = {"hey":"lol"};
+  //httpPostAndGetAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  httpPostSyncAndGetAsync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+
+  console.log('--- POST-and-GET request sent');
 }
 
 console.log('--- --- ---');
@@ -259,6 +297,10 @@ console.log('--- --- ---');
           travelMode: this.travelMode
         }, function(response, status) {
           if (status === 'OK') {
+            // json_server_api
+            // TODO: implement promises, see 'client.html'
+            httpPostSyncAndGetAsync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+            // TODO-next step: add marker layer with scores
             me.directionsDisplay.setDirections(response);
           } else {
             window.alert('Directions request failed due to ' + status);

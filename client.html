@@ -15,13 +15,13 @@
   src: https://stackoverflow.com/a/4033310
   another style, better varnames, explicit mention of async
  */
-// URL for JSON host 
+// URL for JSON host . simple single-serving endpoint for now. no REST API
 var urlJsonServer = "http://localhost:8009";
 /* send json */
 function setVarAndLog(xhr){
   // callback(xhr.responseText);
   var jsonresp = JSON.parse(xhr.responseText);
-  console.log('--- POST response received');
+  console.log('--- [x] POST response received');
   console.log(JSON.stringify(jsonresp));
 }
 function httpPostAsync(myUrl, sendString, callback){
@@ -36,11 +36,14 @@ function httpPostAsync(myUrl, sendString, callback){
   };
   xhr_post.send(sendString);
 }
-console.log('--- POST request sending');
-// TODO: verify response. this particular server returns the same json_str it received
-httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
 
-console.log('--- POST request sent');
+// demo usage
+if(0){
+  console.log('--- POST request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  console.log('--- POST request sent');
+}
 
 /* receive json */
 /* TODO: async this thingy, forgot how to callbacks though.
@@ -54,6 +57,8 @@ console.log('--- POST request sent');
 // console.log(JSON.stringify(muhjaysawns));
 
 // Pron: muh - JAY - saw.ns , colloq: my jsons, i.e. multiple json belonging to oneself
+// This var ONLY for console verification
+// Do NOT use it anywhere in the script; it is not guaranteed to be populated at time of use!
 var muhjaysawns;
 
 function setJsonVarAndLog(xhr){
@@ -77,11 +82,14 @@ function httpGetAsync(myUrl, callback){
   xhr_get.send(null);
 }
 
-console.log('--- GET request sending');
-// this url is a simple single-serving for now. no REST API
-httpGetAsync(urlJsonServer, setJsonVarAndLog);
-console.log('--- GET request sent');
+if(0){
+  console.log('--- GET request sending');
+  // this url is a simple single-serving for now. no REST API
+  httpGetAsync(urlJsonServer, setJsonVarAndLog);
+  console.log('--- GET request sent');
+}
 
+/*-------------------------------------------------------------------------------- */ 
 // blocking
 if(0){
   xhr.open("GET",urlJsonServer, false); // false for synchro
@@ -91,6 +99,91 @@ if(0){
   var muhjaysawns = JSON.stringify(xhr.responseText);
   console.log(JSON.stringify(muhjaysawns));
 }
+/*-------------------------------------------------------------------------------- */ 
+/* send json, receive response */
+// => need promises... rabit hole!
+// TODO: PROMISE to fix this!
+// src: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+// need to combine both fn's into one, otherwise callbacks can't work
+// i.e. can't call httpGetAsync with callback on its own XMLHttpRequest
+// => using httpPostSyncAndGetAsync for now to get past this
+function httpPostAndGetAsync(myUrl, sendString, callback){
+  console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
+  var xhr_post = new XMLHttpRequest();
+  xhr_post.open("POST",myUrl,true); // true : async
+  xhr_post.setRequestHeader("Content-type", "application/json");
+  var xhr_get  = new XMLHttpRequest();
+  xhr_get.open("GET",myUrl,true);
+  xhr_get.setRequestHeader("Content-type", "application/json");
+  // async post - see the second source
+  xhr_post.onreadystatechange = function (){
+    if (xhr_post.readyState == 4 && xhr_post.status == 200){
+      //callback(xhr_post);
+      console.log('--- [x] POST [ ] GET async request complete');
+      console.log('--- [x] POST [_] GET async request sending');
+      // this url is a simple single-serving for now. no REST API
+      httpGetAsync(myUrl, function(){
+        console.log('--- [x] POST [x] GET async request complete');
+        //sample callback, would probably be the marker api?
+        // TODO: challeng: httpGetAsync needs to callback on xhr_get, not xhr_post. Need to implement promises, which are cool and all, but there's not time for that right now
+        callback(xhr_post)
+        },
+      );
+      console.log('--- [x] POST [/] GET async request sent');
+    }
+  };
+  console.log('--- [_] POST [ ] GET async request sending');
+  xhr_post.send(sendString);
+  console.log('--- [/] POST [ ] GET async request sent');
+}
+
+// demo usage
+if(0){
+  console.log('--- POST-and-GET request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  // mock "response" from directions example
+  var response = {"hey":"lol"};
+  //httpPostAndGetAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  httpPostAndGetAsync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+
+  console.log('--- POST-and-GET request sent');
+}
+/*-------------------------------------------------------------------------------- */ 
+
+/*-------------------------------------------------------------------------------- */ 
+/* send json, receive response */
+// alternative to promises... rabit hole!
+// i.e. can't call httpGetAsync with callback on its own XMLHttpRequest
+// TODO: PROMISE to fix this!
+// src: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+function httpPostSyncAndGetAsync(myUrl, sendString, callback){
+  console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
+  var xhr_post = new XMLHttpRequest();
+  // sync post
+  xhr_post.open("POST",myUrl,false); // true : async, false: sync
+  xhr_post.setRequestHeader("Content-type", "application/json");
+
+  xhr_post.send(sendString);
+  console.log(JSON.stringify(xhr_post.responseText));
+
+  // async get
+  console.log('--- GET request sending');
+  httpGetAsync(urlJsonServer, setJsonVarAndLog);
+  console.log('--- GET request sent');
+}
+
+// demo usage
+if(1){
+  console.log('--- POST-and-GET request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  // mock "response" from directions example
+  var response = {"hey":"lol"};
+  //httpPostAndGetAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  httpPostSyncAndGetAsync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+
+  console.log('--- POST-and-GET request sent');
+}
+/*-------------------------------------------------------------------------------- */ 
 
 console.log('--- --- ---');
     </script>
