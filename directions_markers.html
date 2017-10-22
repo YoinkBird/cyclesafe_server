@@ -45,15 +45,6 @@
   <body>
     <!-- <json_server_api> -->
     <script src="json_server_api.js"></script>
-    <script>
-      // demo usage of json_server_api.js
-      if(0){
-        console.log('--- GET request sending');
-        // this url is a simple single-serving for now. no REST API
-        httpGetAsync(urlJsonServer, setJsonVarAndLog);
-        console.log('--- GET request sent');
-      }
-    </script>
     <!-- </json_server_api> -->
     <div id="floating-panel">
     <b>Start: </b>
@@ -86,18 +77,20 @@
       function initMap() {
         var markerArray = [];
 
+        /*----------------------------------------*/ 
+        // Create a map and center it on a desired location
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          //center: {lat: 40.771, lng: -73.974}, // Sydney, AUS
+          center: {lat: 30.2849, lng: -97.7341}, // Austin, TX
+        });
+
         // Instantiate a directions service.
         var directionsService = new google.maps.DirectionsService;
 
-        // Create a map and center it on Manhattan.
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 13,
-          //center: {lat: 40.771, lng: -73.974},
-          center: {lat: 30.2849, lng: -97.7341},
-        });
-
         // Create a renderer for directions and bind it to the map.
         var directionsDisplay = new google.maps.DirectionsRenderer({map: map});
+        /*----------------------------------------*/ 
 
         // Instantiate an info window to hold step text.
         var stepDisplay = new google.maps.InfoWindow;
@@ -131,7 +124,7 @@
         }, function(response, status) {
 // json_server_api
 // TODO: implement promises, see 'client.html'
-var tmpresponse = {"hey":"lol"};
+// reducing indentation to make it clear that this doesn't belong (because it's blocking/sync)
 var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
           // Route the directions and pass the response to a function to create
           // markers for each step.
@@ -139,6 +132,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
             document.getElementById('warnings-panel').innerHTML =
                 '<b>' + response.routes[0].warnings + '</b>';
             directionsDisplay.setDirections(response);
+            // marker
             showSteps(response, res_scores, markerArray, stepDisplay, map);
           } else {
             window.alert('Directions request failed due to ' + status);
@@ -205,6 +199,14 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
         }
       }
 
+/*
+        if(posMarkers[index].getVisible()){
+          posMarkers[index].setVisible(false);
+        }
+        else{
+          posMarkers[index].setVisible(true);
+        }
+        */
       // called only 1x : showSteps
       function attachInstructionText(stepDisplay, marker, text, map) {
         google.maps.event.addListener(marker, 'click', function() {
@@ -215,8 +217,11 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
         });
       }
     </script>
+    <!-- // src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALU94pLkit5lx_QU62wnzOsO6y1H_BWfI&libraries=places&callback=initMap" -->
+    <!-- src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" -->
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+    >
     </script>
   </body>
 </html>

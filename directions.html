@@ -68,7 +68,7 @@
   <body>
     <!-- <json_server_api> -->
     <script src="json_server_api.js"></script>
-    //<!-- </json_server_api> -->
+    <!-- </json_server_api> -->
     <input id="origin-input" class="controls" type="text"
         placeholder="Enter an origin location">
 
@@ -94,10 +94,11 @@
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
       function initMap() {
+        // Create a map and center it on a desired location
         var map = new google.maps.Map(document.getElementById('map'), {
           mapTypeControl: false,
-          // center: {lat: -33.8688, lng: 151.2195},
-          center: {lat: 30.2849, lng: -97.7341},
+          // center: {lat: -33.8688, lng: 151.2195}, // Manhattan, NYC
+          center: {lat: 30.2849, lng: -97.7341}, // Austin, TX
           zoom: 13
         });
 
@@ -115,7 +116,9 @@
         var originInput = document.getElementById('origin-input');
         var destinationInput = document.getElementById('destination-input');
         var modeSelector = document.getElementById('mode-selector');
+        // Instantiate a directions service.
         this.directionsService = new google.maps.DirectionsService;
+        // Create a renderer for directions and bind it to the map.
         this.directionsDisplay = new google.maps.DirectionsRenderer;
         this.directionsDisplay.setMap(map);
 
@@ -134,6 +137,13 @@
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinationInput);
         this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(modeSelector);
+
+
+        // directions_complex_markers
+        // store markers
+        this.markerArray = [];
+        // Instantiate an info window to hold step text.
+        this.stepDisplay = new google.maps.InfoWindow;
       }
 
       // Sets a listener on a radio button to change the filter type on Places
@@ -166,31 +176,114 @@
 
       };
 
+      // 2 callers : setupClickListener , setupPlaceChangedListener
+      // equ to directions_complex_markers :: calculateAndDisplayRoute
       AutocompleteDirectionsHandler.prototype.route = function() {
         if (!this.originPlaceId || !this.destinationPlaceId) {
           return;
         }
         var me = this;
+        
+        // <directions_complex_markers>
+        // prepare markers: First, remove any existing markers from the map.
+        // TODO: this could easily be in a function
+        for (var i = 0; i < me.markerArray.length; i++) {
+          me.markerArray[i].setMap(null);
+        }
+        // </directions_complex_markers>
 
+        // almost identical call as in directions_complex_markers :: calculateAndDisplayRoute
         this.directionsService.route({
           origin: {'placeId': this.originPlaceId},
           destination: {'placeId': this.destinationPlaceId},
           travelMode: this.travelMode
         }, function(response, status) {
           if (status === 'OK') {
-            // json_server_api
-            // TODO: implement promises, see 'client.html'
-            httpPostSyncAndGetAsync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+// json_server_api
+// TODO: implement promises, see 'client.html'
+// reducing indentation to make it clear that this doesn't belong (because it's blocking/sync)
+var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
             // TODO-next step: add marker layer with scores
             me.directionsDisplay.setDirections(response);
+            // markers
+            showSteps(response, res_scores, me.markerArray, me.stepDisplay, me.map);
           } else {
             window.alert('Directions request failed due to ' + status);
           }
         });
       };
 
+      // MARKERS
+      // <directions_complex_markers>
+      // directions_api_example : AutocompleteDirectionsHandler.prototype.showSteps = function() {
+      // called only 1x : calculateAndDisplayRoute
+      function showSteps(directionResult, scoreResult, markerArray, stepDisplay, map) {
+        // For each step, place a marker, and add the text to the marker's infowindow.
+        // Also attach the marker to an array so we can keep track of it and remove it
+        // when calculating new routes.
+
+/* needs to be reviewed, combined with loop below
+        var myRoute = directionResult.routes[0].legs[0];
+        for (var i = 0; i < myRoute.steps.length; i++) {
+          var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
+          marker.setMap(map);
+          marker.setPosition(myRoute.steps[i].start_location);
+          attachInstructionText(
+              stepDisplay, marker, myRoute.steps[i].instructions, map);
+        }
+*/
+
+        // json_server_api : add the scores here
+        // TODO: verify that model.py using 'steps' and not 'overview_path'
+        for (var i = 0; i < scoreResult.length; i++) {
+          var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
+          marker.setMap(map);
+
+          // ADD SCORE
+          var score = scoreResult[i]['score'];
+          var score_3dec = Math.round(score * 1000) / 1000;
+          // Marker Label documentation:
+          // https://developers.google.com/maps/documentation/javascript/3.exp/reference#MarkerLabel
+          // src: https://stackoverflow.com/a/40472150
+          marker.setLabel({color:'black',fontWeight:'bold',text:score_3dec.toString()})
+          // ADD LOCATION
+          //marker.setPosition({'lat':30.1,lng: 40.2})
+          var tmploc = {'lat': scoreResult[i]['lat'], 'lng': scoreResult[i]['lng']};
+          marker.setPosition(tmploc);
+          // adds 'score' to the InfoWindow, supposed to add directions but currently disabled
+          attachInstructionText(
+            // TODO: re-enable
+              //stepDisplay, marker, "score: " + score + "\n" + myRoute.steps[i].instructions, map);
+              stepDisplay, marker, "score: " + score + "\n", map);
+        }
+      }
+
+/*
+        if(posMarkers[index].getVisible()){
+          posMarkers[index].setVisible(false);
+        }
+        else{
+          posMarkers[index].setVisible(true);
+        }
+        */
+      // called only 1x : showSteps
+      function attachInstructionText(stepDisplay, marker, text, map) {
+        google.maps.event.addListener(marker, 'click', function() {
+          // Open an info window when the marker is clicked on, containing the text
+          // of the step.
+          stepDisplay.setContent(text);
+          stepDisplay.open(map, marker);
+        });
+      }
+      // </directions_complex_markers>
+
+
+        // TODO: EERC to kerbey lane
+        // var hc_origin = "J.J. Pickle Research Campus, Austin, TX, United States";
+        // var hc_destination = "Engineering and Education Research Center (EER), Speedway, Austin, TX, United States";
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap"
-        async defer></script>
+    <!-- can't use a var in 'src' -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyALU94pLkit5lx_QU62wnzOsO6y1H_BWfI&libraries=places&callback=initMap"
+      async defer></script>
   </body>
 </html>
