@@ -77,6 +77,7 @@
     <div id="warnings-panel"></div>
     <script>
       "use strict";
+      // called only 1x : as a callback from the 'script async defer' at end
       function initMap() {
         var markerArray = [];
 
@@ -107,6 +108,7 @@
         document.getElementById('end').addEventListener('change', onChangeHandler);
       }
 
+      // called 2x : initMap , onChangeHandler
       function calculateAndDisplayRoute(directionsDisplay, directionsService,
           markerArray, stepDisplay, map) {
         // First, remove any existing markers from the map.
@@ -134,6 +136,7 @@
         });
       }
 
+      // called only 1x : calculateAndDisplayRoute
       function showSteps(directionResult, markerArray, stepDisplay, map) {
         // For each step, place a marker, and add the text to the marker's infowindow.
         // Also attach the marker to an array so we can keep track of it and remove it
@@ -148,6 +151,7 @@
         }
       }
 
+      // called only 1x : showSteps
       function attachInstructionText(stepDisplay, marker, text, map) {
         google.maps.event.addListener(marker, 'click', function() {
           // Open an info window when the marker is clicked on, containing the text
