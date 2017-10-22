@@ -5,13 +5,13 @@ import cgi
 
 # hard-coded globals
 resource_dir = "res"
-quiet = 1
+quiet = 0
 
 
 # dump json to file for consumption by whatever else needs it
 def retrieve_json_file(filename="gps_scored_route.json"):
-    if ( quiet != 1):
-        print("# save to file")
+    #if ( quiet != 1):
+    #    print("# save to file")
     # tmp:
     filepath=("%s/%s" % (resource_dir, filename))
     if ( quiet != 1):
@@ -19,14 +19,16 @@ def retrieve_json_file(filename="gps_scored_route.json"):
     # with open(filepath, 'w') as outfile:
     #    json.dump(response_json, outfile)
 
-    # verify
+    # open file as json
     loadedjson = str()
     with open(filepath, 'r') as infile:
        loadedjson = json.load(infile)
 
+    # read into python structure - TODO: not best practice, return json string instead?
     loadedroute = json.loads(loadedjson)
 
-    return_value = -1
+    # deprecated, meant for verification
+    # return_value = -1
     # verify
     # if( response_json == loadedjson ):
     #     print("json string resurrected successfully")
@@ -35,6 +37,38 @@ def retrieve_json_file(filename="gps_scored_route.json"):
 
     # return json string
     return loadedjson
+
+# save json to file for consumption by whatever else needs it
+#+ in practice, not such a great idea, but for now it is what it is
+#+ ultimately, the server needs to call the model anyway.
+#+ will have to fix the encoding issues of converting to 2to3; not impossible, but super annoying
+def save_json_file(response_json, filename="gps_input_route.json"):
+    if ( quiet != 1):
+        print("# save to file")
+    # tmp:
+    filepath=("%s/%s" % (resource_dir, filename))
+    # if ( quiet != 1):
+    #     print("mock-response sending to : " + filepath)
+    with open(filepath, 'w') as outfile:
+       json.dump(response_json, outfile)
+
+    # open file as json
+    # loadedjson = str()
+    # with open(filepath, 'r') as infile:
+    #    loadedjson = json.load(infile)
+
+    # loadedroute = json.loads(loadedjson)
+
+    # deprecated, meant for verification
+    # return_value = -1
+    # verify
+    # if( response_json == loadedjson ):
+    #     print("json string resurrected successfully")
+    #     return_value = 1
+    # compare the dict if possible?
+
+    # return some sort of success indicator, would probably have to try-catch though
+    return filename
 
 class Server(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -74,9 +108,14 @@ class Server(BaseHTTPRequestHandler):
 #        # add a property to the object, just to mess with data
 #        message['received'] = 'ok'
         
-        # send the message back
+        # send the message back - good for verification, I suppose
         self._set_headers()
         self.wfile.write(json.dumps(message))
+        # store file
+        save_json_file(message)
+        if ( quiet != 1):
+            print("you HAD one job - store the json! maybe you did? IDK")
+            print("-------------------------")
 
         
 def run(server_class=HTTPServer, handler_class=Server, port=8008):
@@ -90,7 +129,7 @@ def run(server_class=HTTPServer, handler_class=Server, port=8008):
 if __name__ == "__main__":
     from sys import argv
     
-    # test
+    # test load,return
     import pprint
     if ( quiet != 1):
         print("-------------------------")
@@ -99,6 +138,18 @@ if __name__ == "__main__":
                 retrieve_json_file()
                 )
         print("-------------------------")
+    # test save - depends on load
+    import pprint
+    if ( quiet != 1):
+        print("-------------------------")
+        print("you have one job - save this string!")
+        pprint.pprint(
+                save_json_file(retrieve_json_file()) # , filename
+                )
+        print("-------------------------")
+    # vvv intentionally fail vvv
+    # qwazantch()
+    # /test
     if len(argv) == 2:
         run(port=int(argv[1]))
     else:
