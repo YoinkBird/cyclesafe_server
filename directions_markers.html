@@ -58,6 +58,7 @@
     <div id="floating-panel">
     <b>Start: </b>
     <select id="start">
+      <option value = "Engineering and Education Research Center (EER), Speedway, Austin, TX, United States">EERC</option>
       <option value="penn station, new york, ny">Penn Station</option>
       <option value="grand central station, new york, ny">Grand Central Station</option>
       <option value="625 8th Avenue, New York, NY, 10018">Port Authority Bus Terminal</option>
@@ -66,6 +67,8 @@
     </select>
     <b>End: </b>
     <select id="end">
+      <option value = "Kerbey Lane Cafe, Guadalupe Street, Austin, TX, United States">K-lane</option>
+      <option value = "J.J. Pickle Research Campus, Austin, TX, United States">PRC</option>
       <option value="260 Broadway New York NY 10007">City Hall</option>
       <option value="W 49th St & 5th Ave, New York, NY 10020">Rockefeller Center</option>
       <option value="moma, New York, NY">MOMA</option>
@@ -89,7 +92,8 @@
         // Create a map and center it on Manhattan.
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 13,
-          center: {lat: 40.771, lng: -73.974}
+          //center: {lat: 40.771, lng: -73.974},
+          center: {lat: 30.2849, lng: -97.7341},
         });
 
         // Create a renderer for directions and bind it to the map.
