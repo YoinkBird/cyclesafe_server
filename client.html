@@ -14,23 +14,23 @@
   another style, better varnames, explicit mention of async
  */
 /* send json */
-var xhr = new XMLHttpRequest();
+var xhr_get = new XMLHttpRequest();
 var xhr_post = new XMLHttpRequest();
 var url = "http://localhost:8009";
-xhr.open("POST",url,true)
-xhr.setRequestHeader("Content-type", "application/json");
+xhr_get.open("POST",url,true)
+xhr_get.setRequestHeader("Content-type", "application/json");
 // async - see the second source
-xhr.onreadystatechange = function (){
-  if (xhr.readyState == 4 && xhr.status == 200){
-    // callback(xhr.responseText);
-    var jsonresp = JSON.parse(xhr.responseText);
+xhr_get.onreadystatechange = function (){
+  if (xhr_get.readyState == 4 && xhr_get.status == 200){
+    // callback(xhr_get.responseText);
+    var jsonresp = JSON.parse(xhr_get.responseText);
     console.log('--- POST response received');
     console.log(JSON.stringify(jsonresp));
   }
 };
 console.log('--- POST request sending');
 // TODO: verify response. this particular server returns the same json_str it received
-xhr.send(JSON.stringify({"lol":"hey"}));
+xhr_get.send(JSON.stringify({"lol":"hey"}));
 console.log('--- POST request sent');
 
 /* receive json */
@@ -46,7 +46,7 @@ console.log('--- GET request sent');
 
 // async notes:
 // assigned before request complete
-// var muhjaysawns = JSON.stringify(xhr.responseText);
+// var muhjaysawns = JSON.stringify(xhr_post.responseText);
 // printed out either before request complete, or then before assigned
 // console.log(JSON.stringify(muhjaysawns));
 var muhjaysawns;
