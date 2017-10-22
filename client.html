@@ -3,22 +3,43 @@
   <title>json server test</title>
   <head>
     <!-- 
-      thanks, past me!
+      html template - thanks, past me!
       https://github.com/YoinkBird/bilderapp/blob/8a146512d981837ec062158bc4c2b9833c4c5a9c/templates/map_slider_img.html
     -->
     <script type="text/javascript">
+/*
+  src: https://stackoverflow.com/a/24468752
+  for send, receive . is usuing async, doesn't mention it though
+  src: https://stackoverflow.com/a/4033310
+  another style, better varnames, explicit mention of async
+ */
+/* send json */
 var xhr = new XMLHttpRequest();
 var url = "http://localhost:8009";
 xhr.open("POST",url,true)
 xhr.setRequestHeader("Content-type", "application/json");
+// async - see the second source
 xhr.onreadystatechange = function (){
   if (xhr.readyState == 4 && xhr.status == 200){
+    // callback(xhr.responseText);
     var json = JSON.parse(xhr.responseText);
     console.log(JSON.stringify(json));
   }
 };
+// TODO: verify response. this particular server returns the same json it received
 xhr.send(JSON.stringify({"lol":"hey"}));
 
+/* receive json */
+/* TODO: async this thingy, forgot how to callbacks though.
+ * current method may already be using a callback to set the var.
+ */
+// this url is a simple single-serving for now. no REST API
+xhr.open("GET",url,true);
+xhr.send();
+var muhjaysawns = JSON.parse(xhr.responseText);
+
+// print out received JSON
+console.log(JSON.stringify(muhjaysawns));
     </script>
   </head>
 </html>
