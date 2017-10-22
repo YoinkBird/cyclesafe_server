@@ -64,67 +64,83 @@
     </style>
   </head>
   <body>
+    <!-- <json_server_api> -->
     <script type="text/javascript">
+"use strict";
 /*
   src: https://stackoverflow.com/a/24468752
   for send, receive . is usuing async, doesn't mention it though
   src: https://stackoverflow.com/a/4033310
   another style, better varnames, explicit mention of async
  */
+// URL for JSON host 
+var urlJsonServer = "http://localhost:8009";
 /* send json */
-var xhr_get = new XMLHttpRequest();
-var xhr_post = new XMLHttpRequest();
-var url = "http://localhost:8009";
-xhr_get.open("POST",url,true)
-xhr_get.setRequestHeader("Content-type", "application/json");
-// async - see the second source
-xhr_get.onreadystatechange = function (){
-  if (xhr_get.readyState == 4 && xhr_get.status == 200){
-    // callback(xhr_get.responseText);
-    var jsonresp = JSON.parse(xhr_get.responseText);
-    console.log('--- POST response received');
-    console.log(JSON.stringify(jsonresp));
-  }
-};
+function setVarAndLog(xhr){
+  // callback(xhr.responseText);
+  var jsonresp = JSON.parse(xhr.responseText);
+  console.log('--- POST response received');
+  console.log(JSON.stringify(jsonresp));
+}
+function httpPostAsync(myUrl, sendString, callback){
+  var xhr_post = new XMLHttpRequest();
+  xhr_post.open("POST",myUrl,true); // true : async
+  xhr_post.setRequestHeader("Content-type", "application/json");
+  // async - see the second source
+  xhr_post.onreadystatechange = function (){
+    if (xhr_post.readyState == 4 && xhr_post.status == 200){
+      callback(xhr_post);
+    }
+  };
+  xhr_post.send(sendString);
+}
 console.log('--- POST request sending');
 // TODO: verify response. this particular server returns the same json_str it received
-xhr_get.send(JSON.stringify({"lol":"hey"}));
+httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+
 console.log('--- POST request sent');
 
 /* receive json */
 /* TODO: async this thingy, forgot how to callbacks though.
  * current method may already be using a callback to set the var.
  */
-// this url is a simple single-serving for now. no REST API
-xhr_post.open("GET",url,true);
-xhr_post.setRequestHeader("Content-type", "application/json");
-console.log('--- GET request sending');
-xhr_post.send(null);
-console.log('--- GET request sent');
 
 // async notes:
 // assigned before request complete
-// var muhjaysawns = JSON.stringify(xhr_post.responseText);
+// var muhjaysawns = JSON.stringify(xhr_get.responseText);
 // printed out either before request complete, or then before assigned
 // console.log(JSON.stringify(muhjaysawns));
 var muhjaysawns;
 
-// async
-xhr_post.onreadystatechange = function (){
-  if (xhr_post.readyState == 4 && xhr_post.status == 200){
-    // callback(xhr.responseText);
-    muhjaysawns = JSON.parse(xhr_post.responseText);
-    if(1){
-      console.log('--- GET response received');
-      console.log(JSON.stringify(muhjaysawns));
-    }
+function setJsonVarAndLog(xhr){
+  muhjaysawns = JSON.parse(xhr.responseText);
+  if(1){
+    console.log('--- GET response received');
+    console.log(JSON.stringify(muhjaysawns));
   }
-};
+}
 
+function httpGetAsync(myUrl, callback){
+  var xhr_get  = new XMLHttpRequest();
+  xhr_get.open("GET",myUrl,true);
+  xhr_get.setRequestHeader("Content-type", "application/json");
+  // async
+  xhr_get.onreadystatechange = function (){
+    if (xhr_get.readyState == 4 && xhr_get.status == 200){
+      callback(xhr_get);
+    }
+  };
+  xhr_get.send(null);
+}
+
+console.log('--- GET request sending');
+// this url is a simple single-serving for now. no REST API
+httpGetAsync(urlJsonServer, setJsonVarAndLog);
+console.log('--- GET request sent');
 
 // blocking
 if(0){
-  xhr.open("GET",url, false); // false for synchro
+  xhr.open("GET",urlJsonServer, false); // false for synchro
   console.log('--- blocking GET request sending');
   xhr.send(null);
   console.log('--- blocking GET request sent');
@@ -134,6 +150,7 @@ if(0){
 
 console.log('--- --- ---');
     </script>
+    <!-- </json_server_api> -->
     <input id="origin-input" class="controls" type="text"
         placeholder="Enter an origin location">
 
