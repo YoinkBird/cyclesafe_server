@@ -1,0 +1,7 @@
+# git
+*.sw?
+# https://github.com/ipython/ipynb/blob/master/.gitignore
+
+# ---- project custom ----
+# the json storage area
+res/*
