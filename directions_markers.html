@@ -151,6 +151,8 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
         // For each step, place a marker, and add the text to the marker's infowindow.
         // Also attach the marker to an array so we can keep track of it and remove it
         // when calculating new routes.
+
+/* needs to be reviewed, combined with loop below
         var myRoute = directionResult.routes[0].legs[0];
         for (var i = 0; i < myRoute.steps.length; i++) {
           var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
@@ -159,6 +161,8 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
           attachInstructionText(
               stepDisplay, marker, myRoute.steps[i].instructions, map);
         }
+*/
+
         // json_server_api : add the scores here
         // TODO: verify that model.py using 'steps' and not 'overview_path'
         for (var i = 0; i < scoreResult.length; i++) {
@@ -177,11 +181,25 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
             */
           marker.setMap(map);
 
+          // ADD SCORE
+          var score = scoreResult[i]['score'];
+          var score_3dec = Math.round(score * 1000) / 1000;
+          // Marker Label documentation:
+          // https://developers.google.com/maps/documentation/javascript/3.exp/reference#MarkerLabel
+          // src: https://stackoverflow.com/a/40472150
+          marker.setLabel({color:'black',fontWeight:'bold',text:score_3dec.toString()})
+          // ADD LOCATION
           //marker.setPosition({'lat':30.1,lng: 40.2})
           var tmploc = {'lat': scoreResult[i]['lat'], 'lng': scoreResult[i]['lng']};
-          var score = scoreResult[i]['score'];
           marker.setPosition(tmploc);
+          /* // adds 'score' to the InfoWindow , but it is now displayed directly as the label
+          google.maps.event.addListenerOnce(map, 'tilesloaded', function() {
+            stepDisplay.setContent("score" + score);
+            stepDisplay.open(map, marker);
+          });
+          */
           attachInstructionText(
+            // TODO: re-enable
               //stepDisplay, marker, "score: " + score + "\n" + myRoute.steps[i].instructions, map);
               stepDisplay, marker, "score: " + score + "\n", map);
         }
