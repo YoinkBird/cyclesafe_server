@@ -117,6 +117,46 @@ if(0){
 
   console.log('--- POST-and-GET request sent');
 }
+/*-------------------------------------------------------------------------------- */ 
+
+/*-------------------------------------------------------------------------------- */ 
+/* send json, receive response */
+// alternative to promises... rabit hole!
+// i.e. can't call httpGetAsync with callback on its own XMLHttpRequest
+function httpPostSyncAndGetSync(myUrl, sendString, callback){
+  console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
+  // sync post
+  var xhr_post = new XMLHttpRequest();
+  xhr_post.open("POST",myUrl,false); // true : async, false: sync
+  xhr_post.setRequestHeader("Content-type", "application/json");
+
+  xhr_post.send(sendString);
+  console.log(JSON.stringify(xhr_post.responseText));
+
+  // sync get
+  var xhr_get = new XMLHttpRequest();
+  xhr_get.open("get",myUrl,false); // true : async, false: sync
+  xhr_get.setRequestHeader("Content-type", "application/json");
+
+  xhr_get.send(null);
+  // TODO:  string is quoted twice, find out solution. JSON.parse will except called on an object, and it is not clear under which circumstances this responseText == response or why it has so many quotes
+  var result = JSON.parse(JSON.parse(xhr_get.responseText));
+  console.log(JSON.stringify(xhr_get.responseText));
+  return result;
+}
+
+// demo usage
+if(0){
+  console.log('--- POST-and-GET request sending');
+  // TODO: verify response. this particular server returns the same json_str it received
+  // mock "response" from directions example
+  var response = {"hey":"lol"};
+  //httpPostAndGetAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
+  httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
+
+  console.log('--- POST-and-GET request sent');
+}
+/*-------------------------------------------------------------------------------- */ 
 
 console.log('--- --- ---');
     //<!-- </json_server_api> -->

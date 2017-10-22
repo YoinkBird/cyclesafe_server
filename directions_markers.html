@@ -123,6 +123,10 @@
           destination: document.getElementById('end').value,
           travelMode: 'WALKING'
         }, function(response, status) {
+// json_server_api
+// TODO: implement promises, see 'client.html'
+var tmpresponse = {"hey":"lol"};
+var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
           // Route the directions and pass the response to a function to create
           // markers for each step.
           if (status === 'OK') {
