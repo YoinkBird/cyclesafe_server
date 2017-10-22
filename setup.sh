@@ -13,7 +13,8 @@ ln -sf ../../output/gps_scored_route.json res/
 python2 ./server.py 8009 &
 server_pid=$!
 echo $?
-echo $! >> server_pid.txt
+# if server already running, the new PID just gets confusing
+#echo $! >> server_pid.txt
 
 # let it spin up
 sleep 1
