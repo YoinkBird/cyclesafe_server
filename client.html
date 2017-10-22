@@ -6,15 +6,18 @@
       html template - thanks, past me!
       https://github.com/YoinkBird/bilderapp/blob/8a146512d981837ec062158bc4c2b9833c4c5a9c/templates/map_slider_img.html
     -->
+    <!-- <json_server_api> -->
     <script type="text/javascript">
+"use strict";
 /*
   src: https://stackoverflow.com/a/24468752
   for send, receive . is usuing async, doesn't mention it though
   src: https://stackoverflow.com/a/4033310
   another style, better varnames, explicit mention of async
  */
+// URL for JSON host 
+var urlJsonServer = "http://localhost:8009";
 /* send json */
-var url = "http://localhost:8009";
 function setVarAndLog(xhr){
   // callback(xhr.responseText);
   var jsonresp = JSON.parse(xhr.responseText);
@@ -35,7 +38,7 @@ function httpPostAsync(myUrl, sendString, callback){
 }
 console.log('--- POST request sending');
 // TODO: verify response. this particular server returns the same json_str it received
-httpPostAsync(url, JSON.stringify({"lol":"hey"}), setVarAndLog);
+httpPostAsync(urlJsonServer, JSON.stringify({"lol":"hey"}), setVarAndLog);
 
 console.log('--- POST request sent');
 
@@ -61,7 +64,7 @@ function setJsonVarAndLog(xhr){
 
 function httpGetAsync(myUrl, callback){
   var xhr_get  = new XMLHttpRequest();
-  xhr_get.open("GET",url,true);
+  xhr_get.open("GET",myUrl,true);
   xhr_get.setRequestHeader("Content-type", "application/json");
   // async
   xhr_get.onreadystatechange = function (){
@@ -74,12 +77,12 @@ function httpGetAsync(myUrl, callback){
 
 console.log('--- GET request sending');
 // this url is a simple single-serving for now. no REST API
-httpGetAsync(url, setJsonVarAndLog);
+httpGetAsync(urlJsonServer, setJsonVarAndLog);
 console.log('--- GET request sent');
 
 // blocking
 if(0){
-  xhr.open("GET",url, false); // false for synchro
+  xhr.open("GET",urlJsonServer, false); // false for synchro
   console.log('--- blocking GET request sending');
   xhr.send(null);
   console.log('--- blocking GET request sent');
@@ -89,5 +92,6 @@ if(0){
 
 console.log('--- --- ---');
     </script>
+    <!-- </json_server_api> -->
   </head>
 </html>
