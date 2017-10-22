@@ -73,12 +73,24 @@ def save_json_file(response_json, filename="gps_input_route.json"):
 class Server(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
+        # TODO: Allow-Origin has to be a domain-name in prod!
+        #+ src: https://stackoverflow.com/a/10636765
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         
     def do_HEAD(self):
         self._set_headers()
         
+    # OPTIONS 
+    #+ src: https://stackoverflow.com/questions/16583827/cors-with-python-basehttpserver-501-unsupported-method-options-in-chrome
+    #+ https://stackoverflow.com/a/32501309
+    def do_OPTIONS(self):
+        self._set_headers()
+
     # GET sends back a Hello world message
     def do_GET(self):
         self._set_headers()

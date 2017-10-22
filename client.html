@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <title>json server test</title>
+  <head>
+    <!-- 
+      thanks, past me!
+      https://github.com/YoinkBird/bilderapp/blob/8a146512d981837ec062158bc4c2b9833c4c5a9c/templates/map_slider_img.html
+    -->
+    <script type="text/javascript">
+var xhr = new XMLHttpRequest();
+var url = "http://localhost:8009";
+xhr.open("POST",url,true)
+xhr.setRequestHeader("Content-type", "application/json");
+xhr.onreadystatechange = function (){
+  if (xhr.readyState == 4 && xhr.status == 200){
+    var json = JSON.parse(xhr.responseText);
+    console.log(JSON.stringify(json));
+  }
+};
+xhr.send(JSON.stringify({"lol":"hey"}));
+
+    </script>
+  </head>
+</html>
