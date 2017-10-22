@@ -93,6 +93,8 @@ class Server(BaseHTTPRequestHandler):
 
     # GET sends back a Hello world message
     def do_GET(self):
+        if ( quiet != 1):
+            print("------------------------- GET -------------------------")
         self._set_headers()
             #{'hello': 'world', 'received': 'ok'}
         self.wfile.write(json.dumps(
@@ -100,10 +102,12 @@ class Server(BaseHTTPRequestHandler):
             ))
         if ( quiet != 1):
             print("you HAD one job - return the json! maybe you did? IDK")
-            print("-------------------------")
+            print("------------------------- /GET -------------------------")
         
     # POST echoes the message adding a JSON field
     def do_POST(self):
+        if ( quiet != 1):
+            print("------------------------- POST -------------------------")
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
         
         # refuse to receive non-json content
@@ -127,7 +131,7 @@ class Server(BaseHTTPRequestHandler):
         save_json_file(message)
         if ( quiet != 1):
             print("you HAD one job - store the json! maybe you did? IDK")
-            print("-------------------------")
+            print("------------------------- /POST -------------------------")
 
         
 def run(server_class=HTTPServer, handler_class=Server, port=8008):
