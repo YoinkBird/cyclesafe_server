@@ -6,7 +6,20 @@ import cgi
 # hard-coded globals
 resource_dir = "res"
 quiet = 0
+selftest = 1
+runhook = "./prepare_json.sh"
 
+# update the model
+def run_model_hook(hookpath):
+    import os.path
+    if (os.path.isfile(hookpath) ):
+        from subprocess import call
+        # https://stackoverflow.com/a/32084182
+        # call(["ls","-ltr"])
+        call(["bash" , hookpath])
+    else:
+        # TODO: need to return a status of some sort
+        print("no hook found")
 
 # dump json to file for consumption by whatever else needs it
 def retrieve_json_file(filename="gps_scored_route.json"):
@@ -18,6 +31,9 @@ def retrieve_json_file(filename="gps_scored_route.json"):
         print("mock-response sending to : " + filepath)
     # with open(filepath, 'w') as outfile:
     #    json.dump(response_json, outfile)
+
+    # make sure file is updated
+    run_model_hook(runhook)
 
     # open file as json
     loadedjson = str()
@@ -42,7 +58,7 @@ def retrieve_json_file(filename="gps_scored_route.json"):
 #+ in practice, not such a great idea, but for now it is what it is
 #+ ultimately, the server needs to call the model anyway.
 #+ will have to fix the encoding issues of converting to 2to3; not impossible, but super annoying
-def save_json_file(response_json, filename="gps_input_route.json"):
+def save_json_file(response_json, filename):
     if ( quiet != 1):
         print("# save to file")
     # tmp:
@@ -128,7 +144,7 @@ class Server(BaseHTTPRequestHandler):
         self._set_headers()
         self.wfile.write(json.dumps(message))
         # store file
-        save_json_file(message)
+        save_json_file(message, "gps_input_route.json")
         if ( quiet != 1):
             print("you HAD one job - store the json! maybe you did? IDK")
             print("------------------------- /POST -------------------------")
@@ -147,22 +163,23 @@ if __name__ == "__main__":
     
     # test load,return
     import pprint
-    if ( quiet != 1):
+    if ( selftest >= 1):
         print("-------------------------")
         print("you have one job - return this string!")
+        message = retrieve_json_file()
         pprint.pprint(
-                retrieve_json_file()
+                message
                 )
         print("-------------------------")
-    # test save - depends on load
-    import pprint
-    if ( quiet != 1):
+        # test save - depends on load
         print("-------------------------")
         print("you have one job - save this string!")
         pprint.pprint(
-                save_json_file(retrieve_json_file()) # , filename
+                save_json_file(message, "gps_input_route_test.json")
                 )
         print("-------------------------")
+    # make sure file is updated
+    run_model_hook(runhook)
     # vvv intentionally fail vvv
     # qwazantch()
     # /test
