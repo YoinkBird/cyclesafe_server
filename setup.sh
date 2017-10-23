@@ -31,6 +31,8 @@ curl http://localhost:8009
 #-------------------------------------------------------------------------------- 
 # mock client map-ui - view json in browser
 chromium-browser --incognito http://localhost:8009
+# how about some other things?
+chromium-browser --incognito directions.html directions_markers.html
 
 #-------------------------------------------------------------------------------- 
 # how to kill the server
