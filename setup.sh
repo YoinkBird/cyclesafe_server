@@ -5,8 +5,15 @@ set -ev
 # manually verify that 'server' is in the .gitignore of the parent project
 
 ## files from model:
-### ln should be safe, haven't seen server overwrite the files
-ln -sf ../../output/gps_scored_route.json res/
+#// ln should be safe, haven't seen server overwrite the files
+### output from server to model : the map json route received from web
+if [ ! -r  ./res/gps_input_route.json ]; then
+  ln -s ../server/res/gps_input_route.json ../output/ # || echo "couldn't create symlink"
+fi
+### input to server from model : the scored json route scored by the model
+if [ ! -r ../output/gps_scored_route.json ]; then
+  ln -s ../../output/gps_scored_route.json res/ # || echo "couldn't create symlink"
+fi
 
 # startup - use python2, ran into encoding errors when converting to python3 after 2to3
 # if 'port already in use', could just be from re-running
