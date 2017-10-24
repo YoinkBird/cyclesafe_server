@@ -6,7 +6,7 @@ import cgi
 # hard-coded globals
 resource_dir = "res"
 quiet = 0
-selftest = 1
+selftest = 0
 runhook = "./prepare_json.sh"
 
 # update the model
@@ -179,7 +179,8 @@ if __name__ == "__main__":
                 )
         print("-------------------------")
     # make sure file is updated
-    run_model_hook(runhook)
+    if ( selftest >= 1):
+        run_model_hook(runhook)
     # vvv intentionally fail vvv
     # qwazantch()
     # /test
