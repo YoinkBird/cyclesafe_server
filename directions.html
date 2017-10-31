@@ -208,7 +208,9 @@
         // prepare markers: First, remove any existing markers from the map.
         // TODO: this could easily be in a function
         for (var i = 0; i < me.markerArray.length; i++) {
-          me.markerArray[i].setMap(null);
+          for (var j = 0; j < me.markerArray[i].length; j++) {
+            me.markerArray[i][j].setMap(null);
+          }
         }
         // </directions_complex_markers>
 
@@ -226,15 +228,20 @@
 var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
             // TODO-next step: add marker layer with scores
             for ( var i = 0, len = response.routes.length; i < len; i++){
-            // TODO: must have a mechanism for clearing these!
+            // TODO: not clearing map as it should!
+            // TODO+: must have a mechanism for clearing these!
               new google.maps.DirectionsRenderer({
                 map: me.map,
                 directions: response,
                 routeIndex : i,
               });
             }
+
+            //me.directionsDisplay.setDirections(response);
             // markers
-            showSteps(response, res_scores, me.markerArray, me.stepDisplay, me.map);
+            for ( var i = 0, len = res_scores.routes.length; i < len; i++){
+              showSteps(response, res_scores, i, me.markerArray, me.stepDisplay, me.map);
+            }
           } else {
             window.alert('Directions request failed due to ' + status);
           }
@@ -245,7 +252,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
       // <directions_complex_markers>
       // directions_api_example : AutocompleteDirectionsHandler.prototype.showSteps = function() {
       // called only 1x : calculateAndDisplayRoute
-      function showSteps(directionResult, scoreResult, markerArray, stepDisplay, map) {
+      function showSteps(directionResult, scoreResult, routeIndex, markerArray, stepDisplay, map) {
         // For each step, place a marker, and add the text to the marker's infowindow.
         // Also attach the marker to an array so we can keep track of it and remove it
         // when calculating new routes.
@@ -263,12 +270,23 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
 
         // json_server_api : add the scores here
         // TODO: verify that model.py using 'steps' and not 'overview_path'
-        for (var i = 0; i < scoreResult.length; i++) {
-          var marker = markerArray[i] = markerArray[i] || new google.maps.Marker;
+        for (var i = 0; i < scoreResult.routes[routeIndex].length; i++) {
+//          // if empty:
+//          if( markerArray.length == 0 ){
+//            // markerArray[routeIndex][i] = new google.maps.Marker;
+//            markerArray[routeIndex] = [];
+//          }
+          // if this one undef:
+          // feels dirty due to reassignment:  markerArray[routeIndex] = markerArray[routeIndex] || []
+          if( ! markerArray[routeIndex] ){
+            markerArray[routeIndex] = [];
+          }
+          // can check for 'undefined' one level deep, but not two
+          var marker = markerArray[routeIndex][i] = markerArray[routeIndex][i] || new google.maps.Marker;
           marker.setMap(map);
 
           // ADD SCORE
-          var score = scoreResult[i]['score'];
+          var score = scoreResult.routes[routeIndex][i]['score'];
           var score_3dec = Math.round(score * 1000) / 1000;
           // Marker Label documentation:
           // https://developers.google.com/maps/documentation/javascript/3.exp/reference#MarkerLabel
@@ -276,7 +294,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
           marker.setLabel({color:'black',fontWeight:'bold',text:score_3dec.toString()})
           // ADD LOCATION
           //marker.setPosition({'lat':30.1,lng: 40.2})
-          var tmploc = {'lat': scoreResult[i]['lat'], 'lng': scoreResult[i]['lng']};
+          var tmploc = {'lat': scoreResult.routes[routeIndex][i]['lat'], 'lng': scoreResult.routes[routeIndex][i]['lng']};
           marker.setPosition(tmploc);
           // adds 'score' to the InfoWindow, supposed to add directions but currently disabled
           attachInstructionText(
