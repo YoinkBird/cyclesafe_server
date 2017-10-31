@@ -118,20 +118,20 @@
         var modeSelector = document.getElementById('mode-selector');
         // Instantiate a directions service.
         this.directionsService = new google.maps.DirectionsService;
-        // Create a renderer for directions and bind it to the map.
-//        this.directionsDisplay = new google.maps.DirectionsRenderer;
-//        this.directionsDisplay.setMap(map);
-        // TEMP - quick experiment to add another map
-        /*
-        this.directionsDisplay2 = new google.maps.DirectionsRenderer;
-        this.directionsDisplay2.setMap(map);
-        this.directionsDisplay3 = new google.maps.DirectionsRenderer;
-        this.directionsDisplay3.setMap(map);
+        // store n-number of renderers for n-number of routes for provideRouteAlternatives:true
+        // this will store renders created by code which processes the returned directions for directions and bind it to the map.
+        // api doc for DirectionsRenderer : https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
+        this.dirDisplays = [];
+        /* call will be as follows, should really be in its own function:
+            for ( var i = 0, len = response.routes.length; i < len; i++){
+              me.dirDisplays[i] = new google.maps.DirectionsRenderer({
+                map: me.map,
+                directions: response,
+                routeIndex : i,
+              });
+            }
         */
 
-        this.dirDisplays = [];
-//        this.dirDisplays[0] = new google.maps.DirectionsRenderer;
-//        this.dirDisplays[0].setMap(map);
         // TODO: draggable requires several changes:
         // https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
         // listen on directions_changed
@@ -158,9 +158,9 @@
 
 
         // directions_complex_markers
-        // store markers
+        // store markers - this will be a 2d array, with 1d for each route and 2d for the markers corresponding to each route (provideRouteAlternatives)
         this.markerArray = [];
-        // Instantiate an info window to hold step text.
+        // Instantiate an info window to hold step text. - probably not ready for provideRouteAlternatives
         this.stepDisplay = new google.maps.InfoWindow;
 
 
@@ -225,7 +225,7 @@
         }
         // </directions_complex_markers>
 
-        // clear existing directions
+        // clear existing directions - see function declaration for more info
         // setting null - src: https://stackoverflow.com/a/15571798
         for (var i = 0; i < me.dirDisplays.length; i++) {
           me.dirDisplays[i].setMap(null);
@@ -244,20 +244,10 @@
 // reducing indentation to make it clear that this doesn't belong (because it's blocking/sync)
 var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
             // TODO-next step: add marker layer with scores
+
+            // create one DirectionsRenderer to display each returned route ( provideRouteAlternatives:true)
             // TODO: implement panel for list of routes: directions associated panel.
-            // https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
-            // NOTE: setting like this allows them to be cleared
-/*
-            me.dirDisplays[0].setDirections(response);
-            me.dirDisplays[0].setRouteIndex(0);
-            me.dirDisplays[1].setDirections(response);
-            me.dirDisplays[1].setRouteIndex(1);
-            me.dirDisplays[2].setDirections(response);
-            me.dirDisplays[2].setRouteIndex(2);
-*/
-
-
-            // [x] TODO: convert to array. that will resolve map clearing
+            // api doc for DirectionsRenderer : https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
             for ( var i = 0, len = response.routes.length; i < len; i++){
               me.dirDisplays[i] = new google.maps.DirectionsRenderer({
                 map: me.map,
@@ -266,7 +256,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
               });
             }
 
-            // markers
+            // markers - loop through route-scores and add markers
             for ( var i = 0, len = res_scores.routes.length; i < len; i++){
               showSteps(response, res_scores, i, me.markerArray, me.stepDisplay, me.map);
             }
@@ -280,6 +270,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
       // <directions_complex_markers>
       // directions_api_example : AutocompleteDirectionsHandler.prototype.showSteps = function() {
       // called only 1x : calculateAndDisplayRoute
+      // provideRouteAlternatives - markerArray gets populated for the route specified by routeIndex
       function showSteps(directionResult, scoreResult, routeIndex, markerArray, stepDisplay, map) {
         // For each step, place a marker, and add the text to the marker's infowindow.
         // Also attach the marker to an array so we can keep track of it and remove it
@@ -297,19 +288,14 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
 */
 
         // json_server_api : add the scores here
-        // [x] TODO: verify that model.py using 'steps' and not 'overview_path'
+        // note - for better abstraction of the subsequent three nested calls, could refactor as: routeScore = scoreResult.routes[routeIndex] ; routeScore[i]['score']; routeScore[i]['lat']; etc..
         for (var i = 0; i < scoreResult.routes[routeIndex].length; i++) {
-//          // if empty:
-//          if( markerArray.length == 0 ){
-//            // markerArray[routeIndex][i] = new google.maps.Marker;
-//            markerArray[routeIndex] = [];
-//          }
-          // if this one undef:
-          // feels dirty due to reassignment:  markerArray[routeIndex] = markerArray[routeIndex] || []
+          // if first dimension (route) not yet defined - can't check two levels in one go:
+          // the short-form feels unfamiliar due to the reassignment, may be an ok-for-javascript thing but I don't want to find out right now:  markerArray[routeIndex] = markerArray[routeIndex] || []
           if( ! markerArray[routeIndex] ){
             markerArray[routeIndex] = [];
           }
-          // can check for 'undefined' one level deep, but not two
+          // if second dimension not yet defined (route-markers)
           var marker = markerArray[routeIndex][i] = markerArray[routeIndex][i] || new google.maps.Marker;
           marker.setMap(map);
 
