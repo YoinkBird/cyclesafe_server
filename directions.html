@@ -121,6 +121,13 @@
         // Create a renderer for directions and bind it to the map.
         this.directionsDisplay = new google.maps.DirectionsRenderer;
         this.directionsDisplay.setMap(map);
+        // TODO: draggable requires several changes:
+        // https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
+        // listen on directions_changed
+        // => extract setDirections out of AutocompleteDirectionsHandler.prototype.route
+        // clear and reset markers
+        // possibly add marker at new drag-point
+        // this.directionsDisplay.setOptions({'draggable':true});
 
         var originAutocomplete = new google.maps.places.Autocomplete(
             originInput, {placeIdOnly: true});
@@ -144,7 +151,20 @@
         this.markerArray = [];
         // Instantiate an info window to hold step text.
         this.stepDisplay = new google.maps.InfoWindow;
+
+
+
       }
+
+      //current state: infinite reload
+     // this.setupDirectionsChangedListener(this.directionsDisplay);  
+      AutocompleteDirectionsHandler.prototype.setupDirectionsChangedListener = function(directionsDisplay){
+        var me = this; // Uncaught TypeError: this.route is not a function
+        // update route if dragged
+        directionsDisplay.addListener('directions_changed', function(){
+          me.route()
+        });
+      };
 
       // Sets a listener on a radio button to change the filter type on Places
       // Autocomplete.
