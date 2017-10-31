@@ -4,6 +4,9 @@ set -ev
 # cd <parentProjDir> && git clone ... server
 # manually verify that 'server' is in the .gitignore of the parent project
 
+curdir=$(dirname $0)
+cd $curdir
+
 ## files from model:
 #// ln should be safe, haven't seen server overwrite the files
 ### output from server to model : the map json route received from web
@@ -26,6 +29,9 @@ echo $?
 # let it spin up
 sleep 1
 
+# how to kill the server
+lsof -i :8009 | tee -a server_pid_lsof.txt
+
 #-------------------------------------------------------------------------------- 
 # mock client map-ui - upload json
 #+ src: https://stackoverflow.com/a/7173011
@@ -42,8 +48,6 @@ chromium-browser --incognito http://localhost:8009
 chromium-browser --incognito directions.html directions_markers.html
 
 #-------------------------------------------------------------------------------- 
-# how to kill the server
-lsof -i :8009 | tee -a server_pid_lsof.txt
 # show any running servers
-cat server_pid.txt
+#cat server_pid.txt
 cat server_pid_lsof.txt
