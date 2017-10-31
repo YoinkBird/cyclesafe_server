@@ -130,12 +130,8 @@
         */
 
         this.dirDisplays = [];
-        this.dirDisplays[0] = new google.maps.DirectionsRenderer;
-        this.dirDisplays[0].setMap(map);
-        this.dirDisplays[1] = new google.maps.DirectionsRenderer;
-        this.dirDisplays[1].setMap(map);
-        this.dirDisplays[2] = new google.maps.DirectionsRenderer;
-        this.dirDisplays[2].setMap(map);
+//        this.dirDisplays[0] = new google.maps.DirectionsRenderer;
+//        this.dirDisplays[0].setMap(map);
         // TODO: draggable requires several changes:
         // https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
         // listen on directions_changed
@@ -229,6 +225,12 @@
         }
         // </directions_complex_markers>
 
+        // clear existing directions
+        // setting null - src: https://stackoverflow.com/a/15571798
+        for (var i = 0; i < me.dirDisplays.length; i++) {
+          me.dirDisplays[i].setMap(null);
+        }
+
         // almost identical call as in directions_complex_markers :: calculateAndDisplayRoute
         this.directionsService.route({
           origin: {'placeId': this.originPlaceId},
@@ -242,24 +244,27 @@
 // reducing indentation to make it clear that this doesn't belong (because it's blocking/sync)
 var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
             // TODO-next step: add marker layer with scores
+            // TODO: implement panel for list of routes: directions associated panel.
             // https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
             // NOTE: setting like this allows them to be cleared
+/*
             me.dirDisplays[0].setDirections(response);
             me.dirDisplays[0].setRouteIndex(0);
             me.dirDisplays[1].setDirections(response);
             me.dirDisplays[1].setRouteIndex(1);
             me.dirDisplays[2].setDirections(response);
             me.dirDisplays[2].setRouteIndex(2);
-        /*
-            // TODO: convert to array. that will resolve map clearing
-            for ( var i = 1, len = response.routes.length; i < len; i++){
-              new google.maps.DirectionsRenderer({
+*/
+
+
+            // [x] TODO: convert to array. that will resolve map clearing
+            for ( var i = 0, len = response.routes.length; i < len; i++){
+              me.dirDisplays[i] = new google.maps.DirectionsRenderer({
                 map: me.map,
                 directions: response,
                 routeIndex : i,
               });
             }
-        */
 
             // markers
             for ( var i = 0, len = res_scores.routes.length; i < len; i++){
@@ -292,7 +297,7 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
 */
 
         // json_server_api : add the scores here
-        // TODO: verify that model.py using 'steps' and not 'overview_path'
+        // [x] TODO: verify that model.py using 'steps' and not 'overview_path'
         for (var i = 0; i < scoreResult.routes[routeIndex].length; i++) {
 //          // if empty:
 //          if( markerArray.length == 0 ){
