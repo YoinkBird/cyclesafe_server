@@ -119,8 +119,23 @@
         // Instantiate a directions service.
         this.directionsService = new google.maps.DirectionsService;
         // Create a renderer for directions and bind it to the map.
-        this.directionsDisplay = new google.maps.DirectionsRenderer;
-        this.directionsDisplay.setMap(map);
+//        this.directionsDisplay = new google.maps.DirectionsRenderer;
+//        this.directionsDisplay.setMap(map);
+        // TEMP - quick experiment to add another map
+        /*
+        this.directionsDisplay2 = new google.maps.DirectionsRenderer;
+        this.directionsDisplay2.setMap(map);
+        this.directionsDisplay3 = new google.maps.DirectionsRenderer;
+        this.directionsDisplay3.setMap(map);
+        */
+
+        this.dirDisplays = [];
+        this.dirDisplays[0] = new google.maps.DirectionsRenderer;
+        this.dirDisplays[0].setMap(map);
+        this.dirDisplays[1] = new google.maps.DirectionsRenderer;
+        this.dirDisplays[1].setMap(map);
+        this.dirDisplays[2] = new google.maps.DirectionsRenderer;
+        this.dirDisplays[2].setMap(map);
         // TODO: draggable requires several changes:
         // https://developers.google.com/maps/documentation/javascript/examples/directions-draggable
         // listen on directions_changed
@@ -227,17 +242,25 @@
 // reducing indentation to make it clear that this doesn't belong (because it's blocking/sync)
 var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response), setVarAndLog);
             // TODO-next step: add marker layer with scores
-            for ( var i = 0, len = response.routes.length; i < len; i++){
-            // TODO: not clearing map as it should!
-            // TODO+: must have a mechanism for clearing these!
+            // https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
+            // NOTE: setting like this allows them to be cleared
+            me.dirDisplays[0].setDirections(response);
+            me.dirDisplays[0].setRouteIndex(0);
+            me.dirDisplays[1].setDirections(response);
+            me.dirDisplays[1].setRouteIndex(1);
+            me.dirDisplays[2].setDirections(response);
+            me.dirDisplays[2].setRouteIndex(2);
+        /*
+            // TODO: convert to array. that will resolve map clearing
+            for ( var i = 1, len = response.routes.length; i < len; i++){
               new google.maps.DirectionsRenderer({
                 map: me.map,
                 directions: response,
                 routeIndex : i,
               });
             }
+        */
 
-            //me.directionsDisplay.setDirections(response);
             // markers
             for ( var i = 0, len = res_scores.routes.length; i < len; i++){
               showSteps(response, res_scores, i, me.markerArray, me.stepDisplay, me.map);
