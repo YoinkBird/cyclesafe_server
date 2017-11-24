@@ -76,7 +76,10 @@
         placeholder="Enter a destination location">
 
     <div id="mode-selector" class="controls">
-      <input type="radio" name="type" id="changemode-walking" checked="checked">
+      <input type="radio" name="type" id="changemode-bicycling" checked="checked">
+      <label for="changemode-bicycling">bicycling</label>
+
+      <input type="radio" name="type" id="changemode-walking">
       <label for="changemode-walking">Walking</label>
 
       <input type="radio" name="type" id="changemode-transit">
@@ -112,7 +115,7 @@
         this.map = map;
         this.originPlaceId = null;
         this.destinationPlaceId = null;
-        this.travelMode = 'WALKING';
+        this.travelMode = 'BICYCLING';
         var originInput = document.getElementById('origin-input');
         var destinationInput = document.getElementById('destination-input');
         var modeSelector = document.getElementById('mode-selector');
@@ -145,6 +148,7 @@
         var destinationAutocomplete = new google.maps.places.Autocomplete(
             destinationInput, {placeIdOnly: true});
 
+        this.setupClickListener('changemode-bicycling', 'BICYCLING');
         this.setupClickListener('changemode-walking', 'WALKING');
         this.setupClickListener('changemode-transit', 'TRANSIT');
         this.setupClickListener('changemode-driving', 'DRIVING');
