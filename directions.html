@@ -283,7 +283,12 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
             // create one DirectionsRenderer to display each returned route ( provideRouteAlternatives:true)
             // TODO: implement panel for list of routes: directions associated panel.
             // api doc for DirectionsRenderer : https://developers.google.com/maps/documentation/javascript/reference#DirectionsRendererOptions
+            // TODO: potentially display scores separately
+            // https://stackoverflow.com/a/11162184
             for ( var i = 0, len = response.routes.length; i < len; i++){
+              // add the total probability to the 'summary' so it shows up in directions panel (setPanel)
+              var routeProb = (100 * res_scores.totalScores[i] ).toFixed(4)
+              response.routes[i]['summary'] = "[" + routeProb + "] " + response.routes[i]['summary'];
               me.dirDisplays[i] = new google.maps.DirectionsRenderer({
                 map: me.map,
                 directions: response,
