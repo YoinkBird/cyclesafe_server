@@ -63,6 +63,35 @@
         font-weight: 300;
       }
 
+      /* right-panel: text directions */
+      #right-panel {
+        font-family: 'Roboto','sans-serif';
+        line-height: 30px;
+        padding-left: 10px;
+      }
+
+      #right-panel select, #right-panel input {
+        font-size: 15px;
+      }
+
+      #right-panel select {
+        width: 100%;
+      }
+
+      #right-panel i {
+        font-size: 12px;
+      }
+      #right-panel {
+        height: 100%;
+        float: right;
+        width: 390px;
+        overflow: auto;
+      }
+      #map {
+        margin-right: 400px;
+      }
+
+
     </style>
   </head>
   <body>
@@ -89,6 +118,7 @@
       <label for="changemode-driving">Driving</label>
     </div>
 
+    <div id="right-panel"><!--<p>directions</p>--></div>
     <div id="map"></div>
 
     <script>
@@ -233,6 +263,7 @@
         // setting null - src: https://stackoverflow.com/a/15571798
         for (var i = 0; i < me.dirDisplays.length; i++) {
           me.dirDisplays[i].setMap(null);
+          me.dirDisplays[i].setPanel(null);
         }
 
         // almost identical call as in directions_complex_markers :: calculateAndDisplayRoute
@@ -259,6 +290,8 @@ var res_scores = httpPostSyncAndGetSync(urlJsonServer, JSON.stringify(response),
                 routeIndex : i,
               });
             }
+            // only need to set it once, then it applies for all
+            me.dirDisplays[0].setPanel(document.getElementById('right-panel'));
 
             // markers - loop through route-scores and add markers
             for ( var i = 0, len = res_scores.routes.length; i < len; i++){
