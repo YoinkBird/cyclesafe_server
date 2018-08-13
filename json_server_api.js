@@ -5,8 +5,9 @@
   src: https://stackoverflow.com/a/4033310
   another style, better varnames, explicit mention of async
  */
-// URL for JSON host 
-var urlJsonServer = "http://localhost:8009";
+// URL for JSON host:
+// origin URL, allows testing from arbitrary URL ('localhost', IP address, etc) : https://developer.mozilla.org/en-US/docs/Web/API/Window/location
+var urlJsonServer = window.location.origin;
 var urlJsonServerRest = "rest/score";
 var urlJsonServerRestPost = urlJsonServerRest + "/" + "upload";
 var urlJsonServerRestGet  = urlJsonServerRest + "/" + "retrieve";
