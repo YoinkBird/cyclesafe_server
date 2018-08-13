@@ -1,4 +1,5 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import urlparse
 import SocketServer
 import json
 import cgi
@@ -113,9 +114,16 @@ class Server(BaseHTTPRequestHandler):
             print("------------------------- GET -------------------------")
         self._set_headers()
             #{'hello': 'world', 'received': 'ok'}
-        self.wfile.write(json.dumps(
-            retrieve_json_file()
-            ))
+        # determine path
+        # src: https://docs.python.org/2/library/urlparse.html
+        # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
+        parsed_path = urlparse.urlparse(self.path)
+        print( "PARSED PATH: ")
+        print( parsed_path )
+        if ( parsed_path.path == "/rest/score/retrieve" ):
+            self.wfile.write(json.dumps(
+                retrieve_json_file()
+                ))
         if ( quiet != 1):
             print("you HAD one job - return the json! maybe you did? IDK")
             print("------------------------- /GET -------------------------")
@@ -124,6 +132,20 @@ class Server(BaseHTTPRequestHandler):
     def do_POST(self):
         if ( quiet != 1):
             print("------------------------- POST -------------------------")
+        # determine path
+        # src: https://docs.python.org/2/library/urlparse.html
+        # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
+        parsed_path = urlparse.urlparse(self.path)
+        print( "PARSED PATH: ")
+        print( parsed_path )
+
+        # only allow this one rest api path for now
+        if ( parsed_path.path != "/rest/score/upload" ):
+            self.send_response(400)
+            self.end_headers()
+            return
+
+        # prepare headers
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
         
         # refuse to receive non-json content
@@ -156,7 +178,13 @@ def run(server_class=HTTPServer, handler_class=Server, port=8008):
     
     if ( quiet != 1):
         print(('Starting httpd on port %d...' % port))
-    httpd.serve_forever()
+    # self-terminate the port on KeyboardInterrupt
+    # src: https://gist.github.com/tliron/8e9757180506f25e46d9#file-rest-py-L177
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    httpd.server_close()
     
 if __name__ == "__main__":
     from sys import argv

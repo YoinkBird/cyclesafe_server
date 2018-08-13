@@ -35,16 +35,17 @@ lsof -i :8009 | tee -a server_pid_lsof.txt
 #-------------------------------------------------------------------------------- 
 # mock client map-ui - upload json
 #+ src: https://stackoverflow.com/a/7173011
-curl --header "Content-Type: application/json" http://localhost:8009 --data @../t/route_json/gps_generic.json
+curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" http://localhost:8009/rest/score/upload --data @../t/route_json/gps_generic.json
 
 #-------------------------------------------------------------------------------- 
 # mock client map-ui - retrieve json
-curl http://localhost:8009
+curl -w "http_code:[%{http_code}]" http://localhost:8009/rest/score/retrieve
 
 #-------------------------------------------------------------------------------- 
 # mock client map-ui - view json in browser
-chromium-browser --incognito http://localhost:8009
+chromium-browser --incognito http://localhost:8009/rest/score/retrieve
 # how about some other things?
+# TODO: convert to host-specific call, i.e. http://localhost:8009/directions.html
 chromium-browser --incognito directions.html directions_markers.html
 
 #-------------------------------------------------------------------------------- 

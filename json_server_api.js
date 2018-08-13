@@ -7,6 +7,10 @@
  */
 // URL for JSON host 
 var urlJsonServer = "http://localhost:8009";
+var urlJsonServerRest = "rest/score";
+var urlJsonServerRestPost = urlJsonServerRest + "/" + "upload";
+var urlJsonServerRestGet  = urlJsonServerRest + "/" + "retrieve";
+
 /* send json */
 function setVarAndLog(xhr){
   // callback(xhr.responseText);
@@ -94,7 +98,7 @@ function httpPostSyncAndGetAsync(myUrl, sendString, callback){
   console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
   var xhr_post = new XMLHttpRequest();
   // sync post
-  xhr_post.open("POST",myUrl,false); // true : async, false: sync
+  xhr_post.open("POST",myUrl + "/" + urlJsonServerRestPost,false); // true : async, false: sync
   xhr_post.setRequestHeader("Content-type", "application/json");
 
   xhr_post.send(sendString);
@@ -102,7 +106,7 @@ function httpPostSyncAndGetAsync(myUrl, sendString, callback){
 
   // async get
   console.log('--- GET request sending');
-  httpGetAsync(urlJsonServer, setJsonVarAndLog);
+  httpGetAsync(myUrl + "/" + urlJsonServerRestGet, setJsonVarAndLog);
   console.log('--- GET request sent');
 }
 
@@ -127,7 +131,7 @@ function httpPostSyncAndGetSync(myUrl, sendString, callback){
   console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
   // sync post
   var xhr_post = new XMLHttpRequest();
-  xhr_post.open("POST",myUrl,false); // true : async, false: sync
+  xhr_post.open("POST",myUrl + "/" + urlJsonServerRestPost,false); // true : async, false: sync
   xhr_post.setRequestHeader("Content-type", "application/json");
 
   xhr_post.send(sendString);
@@ -135,7 +139,7 @@ function httpPostSyncAndGetSync(myUrl, sendString, callback){
 
   // sync get
   var xhr_get = new XMLHttpRequest();
-  xhr_get.open("get",myUrl,false); // true : async, false: sync
+  xhr_get.open("get",myUrl + "/" + urlJsonServerRestGet ,false); // true : async, false: sync
   xhr_get.setRequestHeader("Content-type", "application/json");
 
   xhr_get.send(null);
