@@ -142,8 +142,9 @@ class Server(BaseHTTPRequestHandler):
             if ( quiet != 1):
                 print("you HAD one job - return the json! maybe you did? IDK")
         # TODO: check otherwise, matches will always be defined
-        #+ Group 0 is always present; it’s the whole RE, so match object methods all have group 0 as their default argument.
+        #+ Group 0 is always present; it's the whole RE, so match object methods all have group 0 as their default argument.
         #+ src: https://docs.python.org/2/howto/regex.html#grouping
+        #+ note: copy-paste included "non-ascii" byte, identified with vim search '/[^\x00-\x7F]' via https://stackoverflow.com/a/16987522
         elif ( matches  ):
             print("searching for normal html page")
             filepath = matches.group(1)
