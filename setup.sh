@@ -80,7 +80,7 @@ if [[ ${step} == "browser" ]]; then
   chromium-browser --incognito http://localhost:8009/rest/score/retrieve
   # how about some other things?
   # TODO: convert to host-specific call, i.e. http://localhost:8009/directions.html
-  chromium-browser --incognito directions.html directions_markers.html
+  chromium-browser --incognito http://localhost:8009/directions.html http://localhost:8009/directions_markers.html
 fi
 
 #-------------------------------------------------------------------------------- 

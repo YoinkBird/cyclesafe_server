@@ -3,6 +3,9 @@ import urlparse
 import SocketServer
 import json
 import cgi
+import re
+import shutil
+import os.path
 
 # hard-coded globals
 resource_dir = "res"
@@ -88,7 +91,7 @@ def save_json_file(response_json, filename):
     return filename
 
 class Server(BaseHTTPRequestHandler):
-    def _set_headers(self):
+    def _set_headers_common(self):
         self.send_response(200)
         # TODO: Allow-Origin has to be a domain-name in prod!
         #+ src: https://stackoverflow.com/a/10636765
@@ -96,7 +99,15 @@ class Server(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
         self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+    def _set_headers_json(self):
+        self._set_headers_common()
         self.send_header('Content-type', 'application/json')
+    def _set_headers_html(self):
+        self._set_headers_common()
+        self.send_header('Content-type', 'text/html')
+    # TODO: fix all calls to this one
+    def _set_headers(self):
+        self._set_headers_json()
         self.end_headers()
         
     def do_HEAD(self):
@@ -112,20 +123,44 @@ class Server(BaseHTTPRequestHandler):
     def do_GET(self):
         if ( quiet != 1):
             print("------------------------- GET -------------------------")
-        self._set_headers()
             #{'hello': 'world', 'received': 'ok'}
         # determine path
         # src: https://docs.python.org/2/library/urlparse.html
         # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
         parsed_path = urlparse.urlparse(self.path)
+        print( "self path:" + self.path )
         print( "PARSED PATH: ")
         print( parsed_path )
-        if ( parsed_path.path == "/rest/score/retrieve" ):
-            self.wfile.write(json.dumps(
-                retrieve_json_file()
-                ))
+        pattern = re.compile( '/(.*)' )
+        matches = pattern.match( self.path )
+        if ( re.match("/rest/.*", parsed_path.path) ):
+            self._set_headers()
+            if ( parsed_path.path == "/rest/score/retrieve" ):
+                self.wfile.write(json.dumps(
+                    retrieve_json_file()
+                    ))
+            if ( quiet != 1):
+                print("you HAD one job - return the json! maybe you did? IDK")
+        # TODO: check otherwise, matches will always be defined
+        #+ Group 0 is always present; it’s the whole RE, so match object methods all have group 0 as their default argument.
+        #+ src: https://docs.python.org/2/howto/regex.html#grouping
+        elif ( matches  ):
+            print("searching for normal html page")
+            filepath = matches.group(1)
+            print("requested: " + filepath)
+            # path exists - src: https://stackoverflow.com/a/82852
+            if( os.path.isfile(filepath) ):
+              print("found normal html page: " + filepath)
+              self._set_headers_html()
+              self.end_headers()
+              file = open(filepath)
+              # vvv nope: 
+              # <open file 'directions.html', mode 'r' at 0x7f0a35cbb6f0>
+              # self.wfile.write( file )
+              # vvv works:
+              # src: https://gist.github.com/tliron/8e9757180506f25e46d9#file-rest-py-L136
+              shutil.copyfileobj( file, self.wfile )
         if ( quiet != 1):
-            print("you HAD one job - return the json! maybe you did? IDK")
             print("------------------------- /GET -------------------------")
         
     # POST echoes the message adding a JSON field
