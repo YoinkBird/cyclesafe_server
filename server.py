@@ -105,19 +105,18 @@ class Server(BaseHTTPRequestHandler):
     def _set_headers_html(self):
         self._set_headers_common()
         self.send_header('Content-type', 'text/html')
-    # TODO: fix all calls to this one
-    def _set_headers(self):
+
+    # handlers
+    def do_HEAD(self):
         self._set_headers_json()
         self.end_headers()
-        
-    def do_HEAD(self):
-        self._set_headers()
         
     # OPTIONS 
     #+ src: https://stackoverflow.com/questions/16583827/cors-with-python-basehttpserver-501-unsupported-method-options-in-chrome
     #+ https://stackoverflow.com/a/32501309
     def do_OPTIONS(self):
-        self._set_headers()
+        self._set_headers_json()
+        self.end_headers()
 
     # GET sends back a Hello world message
     def do_GET(self):
@@ -134,7 +133,8 @@ class Server(BaseHTTPRequestHandler):
         pattern = re.compile( '/(.*)' )
         matches = pattern.match( self.path )
         if ( re.match("/rest/.*", parsed_path.path) ):
-            self._set_headers()
+            self._set_headers_json()
+            self.end_headers()
             if ( parsed_path.path == "/rest/score/retrieve" ):
                 self.wfile.write(json.dumps(
                     retrieve_json_file()
@@ -199,7 +199,8 @@ class Server(BaseHTTPRequestHandler):
 #        message['received'] = 'ok'
         
         # send the message back - good for verification, I suppose
-        self._set_headers()
+        self._set_headers_json()
+        self.end_headers()
         self.wfile.write(json.dumps(message))
         # store file
         save_json_file(message, "gps_input_route.json")
