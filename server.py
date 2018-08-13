@@ -149,6 +149,8 @@ class Server(BaseHTTPRequestHandler):
             print("searching for normal html page")
             filepath = matches.group(1)
             print("requested: " + filepath)
+            if(filepath == ""):
+                filepath = "directions.html"
             # path exists - src: https://stackoverflow.com/a/82852
             if( os.path.isfile(filepath) ):
               print("found normal html page: " + filepath)
