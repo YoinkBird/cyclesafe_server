@@ -1,4 +1,5 @@
-set -ev
+
+set -e
 # PREPARE:
 ## clone into dir with model as a subdir. this keeps all filepaths relative
 # cd <parentProjDir> && git clone ... server
@@ -59,6 +60,31 @@ fi
 
 if [[ ${runall} -eq 1 ]]; then
   step="launch";
+fi
+
+# remove the generated files and links
+if [[ ${step} == "clean" ]]; then
+  dbecho="echo"
+  dbecho=""
+  # these paths link back to the current dir for server, as of now
+  # server links
+  $dbecho rm -v ../server/res/gps_scored_route.json
+  # server files
+  $dbecho rm -v ../server/res/gps_input_route.json
+
+  # model links 
+  $dbecho rm -v ../output/gps_input_route.json
+  # model files
+  $dbecho rm -v ../output/gps_scored_route.json
+
+  # visually verify
+  cd ../
+  pwd
+  git clean -xdn
+  cd -
+  pwd
+  git clean -xdn
+
 fi
 
 if [[ ${step} == "launch" ]]; then
