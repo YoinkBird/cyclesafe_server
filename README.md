@@ -1,10 +1,10 @@
 # Minimal Server for interacting with model-generation backend code
 ## Quick Start
 
-After cloning all repos:
+Clone this repo.
 
 <pre>
-# prepare environment, run server, test server, launch browser
+# prepare environment (clone and prep modelgen repo, run server, test server, launch browser
 ./setup.sh
 
 # simply run server

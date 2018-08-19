@@ -1,9 +1,9 @@
 
 set -e
 # PREPARE:
-## clone into dir with model as a subdir. this keeps all filepaths relative
-# cd <parentProjDir> && git clone ... server
-# manually verify that 'server' is in the .gitignore of the parent project
+## clone this repo as the top-level dir, as it will clone the model generation into a subdir
+# cd <writeable path> && git clone <url> 
+# manually verify that 'modelgen' is in .gitignore , as this is the default path to the model generation repo
 
 # USAGE:
 # launch server, verify running from cli, and launch browser to interact:
@@ -67,14 +67,37 @@ fi
 # fi
 
 modelgendir="modelgen";
-if [ ! -e ${modelgendir} ] || [ ! -d ${modelgendir} ] ; then
-  echo "-E- : model generation repo likely not set up correctly";
-  echo "-E- : ensure that directory [ $modelgendir ] contains the repo for generating the prediction model";
-  exit;
+modelgenbranch="enable_ui";
+# check whether modelgen repo exists, clone as needed unless during the cleanup steps (clean and reset)
+if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
+  # get the host of the repo
+  #+ process 'show origin' with perl to get the fetch/clone url,
+  #+ then extract the github/username from that url
+  github_host_repo_origin=$(git remote show origin | perl -nle 'm|Fetch URL: (.*)| && print $1' )
+  github_host_user=$( dirname ${github_host_repo_origin} )
+  github_url_modelgen="${github_host_user}/cyclesafe";
+  # path exists but is not directory
+  if [ -e ${modelgendir} ] && [ ! -d ${modelgendir} ] ; then
+    echo "-E- : model generation repo likely not set up correctly";
+    echo "-E- : ensure that directory [ $modelgendir ] contains the repo for generating the prediction model";
+    exit;
+    # path does not exist
+  elif [ ! -e ${modelgendir} ] ; then
+    # try to set up
+    # simple: not cloned yet
+    set -x
+    git clone ${github_url_modelgen} ${modelgendir};
+    # HARD_CODE
+    cd ${modelgendir} && git checkout ${modelgenbranch} && cd -
+    set +x 
+    if [ $? -ne 0 ]; then
+      echo "-E- : could not clone the repo";
+    fi
+  fi
 fi
 
 # remove the generated files and links
-if [[ ${step} == "clean" ]]; then
+if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   dbecho="echo"
   dbecho=""
   # these paths link back to the current dir for server, as of now
@@ -88,13 +111,20 @@ if [[ ${step} == "clean" ]]; then
   # model files
   $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
 
+  # hard-clean
+  if [[ ${step} == "reset" ]]; then
+    rm -rf ${modelgendir};
+  fi
+
   # visually verify
   pwd
   git clean -xdn
-  cd ./${modelgendir}
-  pwd
-  git clean -xdn
-  cd ..
+  if [ -e ${modelgendir} ]; then
+    cd ./${modelgendir}
+    pwd
+    git clean -xdn
+    cd ..
+  fi
 fi
 
 if [[ ${step} == "prepare" ]]; then
