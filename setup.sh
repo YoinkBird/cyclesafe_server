@@ -66,6 +66,12 @@ fi
 #   step="prepare";
 # fi
 
+modelgendir="modelgen";
+if [ ! -e ${modelgendir} ] || [ ! -d ${modelgendir} ] ; then
+  echo "-E- : model generation repo likely not set up correctly";
+  echo "-E- : ensure that directory [ $modelgendir ] contains the repo for generating the prediction model";
+  exit;
+fi
 
 # remove the generated files and links
 if [[ ${step} == "clean" ]]; then
@@ -73,35 +79,44 @@ if [[ ${step} == "clean" ]]; then
   dbecho=""
   # these paths link back to the current dir for server, as of now
   # server links
-  $dbecho rm -v ../server/res/gps_scored_route.json
+  $dbecho rm -v -f ./res/gps_scored_route.json
   # server files
-  $dbecho rm -v ../server/res/gps_input_route.json
+  $dbecho rm -v -f ./res/gps_input_route.json
 
   # model links 
-  $dbecho rm -v ../output/gps_input_route.json
+  $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
   # model files
-  $dbecho rm -v ../output/gps_scored_route.json
+  $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
 
   # visually verify
-  cd ../
   pwd
   git clean -xdn
-  cd -
+  cd ./${modelgendir}
   pwd
   git clean -xdn
-
+  cd ..
 fi
 
 if [[ ${step} == "prepare" ]]; then
+  # single entry point from model to server, i.e. links go through <modeldir>/server
+  #+ ./${modelgendir}/server -> ../
+  set +e
+  ln -s ../ ${modelgendir}/server
+  set -e
   ## files from model:
   #// ln should be safe, haven't seen server overwrite the files
   ### output from server to model : the map json route received from web
+  #+ link: ./${modelgendir}/output -> ../'server'/res/gps_input_route.json ( using 'server' symlink)
+  #+ link: ./${modelgendir}/output -> ../../res/gps_input_route.json       ( without 'server' symlink)
   if [ ! -r  ./res/gps_input_route.json ]; then
-    ln -s ../server/res/gps_input_route.json ../output/ # || echo "couldn't create symlink"
+    ln -v -s ../server/res/gps_input_route.json ./${modelgendir}/output/ # || echo "couldn't create symlink"
+    ls -lts ./${modelgendir}/output/gps_input_route.json # || echo "couldn't create symlink"
   fi
   ### input to server from model : the scored json route scored by the model
-  if [ ! -r ../output/gps_scored_route.json ]; then
-    ln -s ../../output/gps_scored_route.json res/ # || echo "couldn't create symlink"
+  #+ link: ./res/gps_scored_route.json -> ../${modelgendir}/output/gps_scored_route.json
+  if [ ! -r ./${modelgendir}/output/gps_scored_route.json ]; then
+    ln -v -s ../${modelgendir}/output/gps_scored_route.json ./res/ # || echo "couldn't create symlink"
+    ls -lts ./res/gps_scored_route.json # || echo "couldn't create symlink"
   fi
 
   if [[ ${runall} -eq 1 ]]; then
@@ -129,11 +144,12 @@ if [[ ${step} == "launch" ]]; then
     step="verify"
   fi
 fi
+
 if [[ ${step} == "verify" ]]; then
   #-------------------------------------------------------------------------------- 
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
-  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" http://localhost:8009/rest/score/upload --data @../t/route_json/gps_generic.json
+  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" http://localhost:8009/rest/score/upload --data @${modelgendir}/t/route_json/gps_generic.json
 
   #-------------------------------------------------------------------------------- 
   # mock client map-ui - retrieve json
