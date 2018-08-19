@@ -14,7 +14,7 @@ Documentation: see setup.sh
 # hard-coded globals
 resource_dir = "res"
 quiet = 0
-selftest = 0
+selftest = 1
 runhook = "./prepare_json.sh"
 
 # update the model
@@ -255,8 +255,9 @@ if __name__ == "__main__":
     # vvv intentionally fail vvv
     # qwazantch()
     # /test
-    if len(argv) == 2:
-        run(port=int(argv[1]))
-    else:
-        run()
+    if ( selftest == 0):
+        if len(argv) == 2:
+            run(port=int(argv[1]))
+        else:
+            run()
         
