@@ -8,9 +8,11 @@
 // URL for JSON host:
 // origin URL, allows testing from arbitrary URL ('localhost', IP address, etc) : https://developer.mozilla.org/en-US/docs/Web/API/Window/location
 var urlJsonServer = window.location.origin;
-var urlJsonServerRest = "rest/score";
-var urlJsonServerRestPost = urlJsonServerRest + "/" + "upload";
-var urlJsonServerRestGet  = urlJsonServerRest + "/" + "retrieve";
+var jsonEndpoint = "rest/score";
+var urlJsonServerRest = urlJsonServer + "/" + jsonEndpoint;
+// vars relative to url
+var jsonEndpointPost = jsonEndpoint + "/" + "upload";
+var jsonEndpointGet  = jsonEndpoint + "/" + "retrieve";
 
 /* send json */
 function setVarAndLog(xhr){
@@ -99,7 +101,7 @@ function httpPostSyncAndGetAsync(myUrl, sendString, callback){
   console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
   var xhr_post = new XMLHttpRequest();
   // sync post
-  xhr_post.open("POST",myUrl + "/" + urlJsonServerRestPost,false); // true : async, false: sync
+  xhr_post.open("POST",myUrl + "/" + jsonEndpointPost,false); // true : async, false: sync
   xhr_post.setRequestHeader("Content-type", "application/json");
 
   xhr_post.send(sendString);
@@ -107,7 +109,7 @@ function httpPostSyncAndGetAsync(myUrl, sendString, callback){
 
   // async get
   console.log('--- GET request sending');
-  httpGetAsync(myUrl + "/" + urlJsonServerRestGet, setJsonVarAndLog);
+  httpGetAsync(myUrl + "/" + jsonEndpointGet, setJsonVarAndLog);
   console.log('--- GET request sent');
 }
 
@@ -132,7 +134,7 @@ function httpPostSyncAndGetSync(myUrl, sendString, callback){
   console.log('--- Log legend: [ ] unstarted | [_] current | [/] started | [x] complete ');
   // sync post
   var xhr_post = new XMLHttpRequest();
-  xhr_post.open("POST",myUrl + "/" + urlJsonServerRestPost,false); // true : async, false: sync
+  xhr_post.open("POST",myUrl + "/" + jsonEndpointPost,false); // true : async, false: sync
   xhr_post.setRequestHeader("Content-type", "application/json");
 
   xhr_post.send(sendString);
@@ -140,7 +142,7 @@ function httpPostSyncAndGetSync(myUrl, sendString, callback){
 
   // sync get
   var xhr_get = new XMLHttpRequest();
-  xhr_get.open("get",myUrl + "/" + urlJsonServerRestGet ,false); // true : async, false: sync
+  xhr_get.open("get",myUrl + "/" + jsonEndpointGet ,false); // true : async, false: sync
   xhr_get.setRequestHeader("Content-type", "application/json");
 
   xhr_get.send(null);
