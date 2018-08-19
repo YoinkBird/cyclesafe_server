@@ -179,6 +179,33 @@ if [[ ${step} == "browser" ]]; then
   chromium-browser --incognito ${urlJsonServer}/directions.html # http://localhost:8009/directions_markers.html
 fi
 
+# stop the server. naming this step kill because it's using 'kill' instead of cleanly shutting down server
+if [[ ${step} == "kill" ]]; then
+  echo "stopping server via kill"
+  killed=0
+  for pid in $(cat server_pid_lsof.txt  | awk '{printf "%s\n", $2}' | perl -nle 'm|(\d+)| && print $1'); do
+    set +e
+    # UID        PID  PPID  C STIME TTY      STAT   TIME CMD
+    # myusern+ 23837  9337  0 17:09 pts/3    S      0:00 python2 ./server.py <urlPort>
+    ps -fww $pid | grep "${pid}.*python2.*server\.py.*${urlPort}";
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+      set -x
+      kill -s HUP ${pid}
+      set +x
+      killed=1
+    fi
+    set -e
+  done
+  if [[ $killed -eq 1 ]]; then
+    set -x
+    rm server_pid_lsof.txt
+    set +x
+  else
+    echo "could not kill server"
+  fi
+fi
+
 #-------------------------------------------------------------------------------- 
 # show any running servers
 #cat server_pid.txt
