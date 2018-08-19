@@ -99,7 +99,7 @@ class Server(BaseHTTPRequestHandler):
         self.send_response(200)
         # TODO: Allow-Origin has to be a domain-name in prod!
         #+ src: https://stackoverflow.com/a/10636765
-        self.send_header('Access-Control-Allow-Origin', '*')
+#        self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
         self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
