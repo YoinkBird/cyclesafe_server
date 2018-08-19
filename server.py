@@ -142,7 +142,7 @@ class Server(BaseHTTPRequestHandler):
             if ( parsed_path.path == "/rest/score/retrieve" ):
                 self.wfile.write(json.dumps(
                     retrieve_json_file()
-                    ))
+                    ).encode())
             if ( quiet != 1):
                 print("you HAD one job - return the json! maybe you did? IDK")
         # TODO: check otherwise, matches will always be defined
@@ -160,13 +160,9 @@ class Server(BaseHTTPRequestHandler):
               print("found normal html page: " + filepath)
               self._set_headers_html()
               self.end_headers()
-              file = open(filepath)
-              # vvv nope: 
-              # <open file 'directions.html', mode 'r' at 0x7f0a35cbb6f0>
-              # self.wfile.write( file )
-              # vvv works:
-              # src: https://gist.github.com/tliron/8e9757180506f25e46d9#file-rest-py-L136
-              shutil.copyfileobj( file, self.wfile )
+              # src: https://stackoverflow.com/a/45152020
+              with open( filepath) as file:
+                self.wfile.write( file.read().encode() )
         if ( quiet != 1):
             print("------------------------- /GET -------------------------")
         
@@ -188,7 +184,8 @@ class Server(BaseHTTPRequestHandler):
             return
 
         # prepare headers
-        ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+
+        ctype, pdict = cgi.parse_header(self.headers['content-type'])
         
         # refuse to receive non-json content
         if ctype != 'application/json':
@@ -197,7 +194,8 @@ class Server(BaseHTTPRequestHandler):
             return
             
         # read the message and convert it into a python dictionary
-        length = int(self.headers.getheader('content-length'))
+        #+ src: https://stackoverflow.com/a/2124520
+        length = int(self.headers['content-length'])
         message = json.loads(self.rfile.read(length))
 
 # note sure if this could conflict with the map json        
@@ -207,7 +205,7 @@ class Server(BaseHTTPRequestHandler):
         # send the message back - good for verification, I suppose
         self._set_headers_json()
         self.end_headers()
-        self.wfile.write(json.dumps(message))
+        self.wfile.write(json.dumps(message).encode())
         # store file
         save_json_file(message, "gps_input_route.json")
         if ( quiet != 1):
@@ -261,3 +259,20 @@ if __name__ == "__main__":
         else:
             run()
         
+
+
+# notes on python3 conversion
+## reading headers and using 'encode()'
+# src: https://stackoverflow.com/a/2124520
+
+## returning file after loading
+# src: https://stackoverflow.com/a/45152020
+
+# vvv didn't work:
+# <open file 'directions.html', mode 'r' at 0x7f0a35cbb6f0>
+# self.wfile.write( file )
+# vvv no longer works (python2 only, arguably not the best method at the time):
+# src: https://gist.github.com/tliron/8e9757180506f25e46d9#file-rest-py-L136
+# shutil.copyfileobj( file, self.wfile )
+
+
