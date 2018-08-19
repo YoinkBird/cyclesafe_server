@@ -14,7 +14,7 @@ Documentation: see setup.sh
 # hard-coded globals
 resource_dir = "res"
 quiet = 0
-selftest = 1
+selftest = 0
 runhook = "./prepare_json.sh"
 
 # update the model

@@ -165,9 +165,9 @@ urlJsonServerRestGet="${urlJsonServerRest}""/""retrieve";
 
 if [[ ${step} == "launch" ]]; then
 
-  # startup - use python2, ran into encoding errors when converting to python3 after 2to3
+  # startup
   # if 'port already in use', could just be from re-running
-  python2 ./server.py ${urlPort} &
+  python3 ./server.py ${urlPort} &
   server_pid=$!
   echo $?
   # if server already running, the new PID just gets confusing
@@ -195,6 +195,12 @@ if [[ ${step} == "verify" ]]; then
   echo "VERIFY GET:"
   # mock client map-ui - retrieve json
   curl -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
+
+  #-------------------------------------------------------------------------------- 
+  echo "VERIFY GET HTML:"
+  # mock client map-ui - retrieve json
+  curl -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+
   if [[ ${runall} -eq 1 ]]; then
     step="browser"
   fi
@@ -216,8 +222,8 @@ if [[ ${step} == "kill" ]]; then
   for pid in $(cat server_pid_lsof.txt  | awk '{printf "%s\n", $2}' | perl -nle 'm|(\d+)| && print $1'); do
     set +e
     # UID        PID  PPID  C STIME TTY      STAT   TIME CMD
-    # myusern+ 23837  9337  0 17:09 pts/3    S      0:00 python2 ./server.py <urlPort>
-    ps -fww $pid | grep "${pid}.*python2.*server\.py.*${urlPort}";
+    # myusern+ 23837  9337  0 17:09 pts/3    S      0:00 python3 ./server.py <urlPort>
+    ps -fww $pid | grep "${pid}.*python3.*server\.py.*${urlPort}";
     rc=$?
     if [[ $rc -eq 0 ]]; then
       set -x
