@@ -1,6 +1,6 @@
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import urlparse
-import SocketServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import urllib.parse
+import socketserver
 import json
 import cgi
 import re
@@ -130,7 +130,7 @@ class Server(BaseHTTPRequestHandler):
         # determine path
         # src: https://docs.python.org/2/library/urlparse.html
         # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
-        parsed_path = urlparse.urlparse(self.path)
+        parsed_path = urllib.parse.urlparse(self.path)
         print( "self path:" + self.path )
         print( "PARSED PATH: ")
         print( parsed_path )
@@ -177,7 +177,7 @@ class Server(BaseHTTPRequestHandler):
         # determine path
         # src: https://docs.python.org/2/library/urlparse.html
         # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
-        parsed_path = urlparse.urlparse(self.path)
+        parsed_path = urllib.parse.urlparse(self.path)
         print( "PARSED PATH: ")
         print( parsed_path )
 
