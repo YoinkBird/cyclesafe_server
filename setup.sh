@@ -59,8 +59,13 @@ if [[ $# -gt 0 ]]; then
 fi
 
 if [[ ${runall} -eq 1 ]]; then
-  step="launch";
+  step="prepare";
 fi
+# # backwards compatibility - launch used to include compare
+# if [[ ${step} == "launch" ]]; then
+#   step="prepare";
+# fi
+
 
 # remove the generated files and links
 if [[ ${step} == "clean" ]]; then
@@ -87,8 +92,7 @@ if [[ ${step} == "clean" ]]; then
 
 fi
 
-if [[ ${step} == "launch" ]]; then
-
+if [[ ${step} == "prepare" ]]; then
   ## files from model:
   #// ln should be safe, haven't seen server overwrite the files
   ### output from server to model : the map json route received from web
@@ -99,6 +103,13 @@ if [[ ${step} == "launch" ]]; then
   if [ ! -r ../output/gps_scored_route.json ]; then
     ln -s ../../output/gps_scored_route.json res/ # || echo "couldn't create symlink"
   fi
+
+  if [[ ${runall} -eq 1 ]]; then
+    step="launch"
+  fi
+fi
+
+if [[ ${step} == "launch" ]]; then
 
   # startup - use python2, ran into encoding errors when converting to python3 after 2to3
   # if 'port already in use', could just be from re-running

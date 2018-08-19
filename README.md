@@ -3,7 +3,15 @@
 
 After cloning all repos:
 
+<pre>
+# prepare environment, run server, test server, launch browser
+./setup.sh
+
+# simply run server
+./setup.sh prepare
 ./setup.sh launch
+</pre>
+
 
 ## Documentation
 
