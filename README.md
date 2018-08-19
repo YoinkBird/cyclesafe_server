@@ -1,3 +1,34 @@
+# Minimal Server for interacting with model-generation backend code
+## Quick Start
+
+After cloning all repos:
+
+./setup.sh launch
+
+## Documentation
+
+Brief overview of files and functionality.  
+For comprehensive overview of implementation, see "setup.sh".  
+
+setup.sh
+* prepares environment
+* launches server
+* sets up visual verification
+
+server.py
+* the actual server code
+* POST: accepts json, passes to model-generation code
+* GET:  returns scored json, retreieved from model-generation code
+
+
+directions.html
+* rudimentary webpage implementing google maps API
+* displays scored routes based on model predictions
+* sends direction json to server
+* receives scored json from server
+* displays original directions with score as mapmarker
+
+# Original Server Documentation
 A minimal HTTP server in python. It sends a JSON Hello World for GET requests, and echoes back JSON for POST requests.
 
 ```

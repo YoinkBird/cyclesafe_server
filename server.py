@@ -7,6 +7,10 @@ import re
 import shutil
 import os.path
 
+'''
+Documentation: see setup.sh
+'''
+
 # hard-coded globals
 resource_dir = "res"
 quiet = 0
