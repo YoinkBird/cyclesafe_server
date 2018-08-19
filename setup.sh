@@ -124,11 +124,20 @@ if [[ ${step} == "prepare" ]]; then
   fi
 fi
 
+set -u
+urlAddress="http://localhost"
+urlPort="8009"
+jsonEndpoint="rest/score";
+urlJsonServer="${urlAddress}:${urlPort}" # window.location.origin + '/rest/score'
+urlJsonServerRest="${urlJsonServer}/${jsonEndpoint}" # window.location.origin + '/rest/score'
+urlJsonServerRestPost="${urlJsonServerRest}""/""upload";
+urlJsonServerRestGet="${urlJsonServerRest}""/""retrieve";
+
 if [[ ${step} == "launch" ]]; then
 
   # startup - use python2, ran into encoding errors when converting to python3 after 2to3
   # if 'port already in use', could just be from re-running
-  python2 ./server.py 8009 &
+  python2 ./server.py ${urlPort} &
   server_pid=$!
   echo $?
   # if server already running, the new PID just gets confusing
@@ -138,7 +147,7 @@ if [[ ${step} == "launch" ]]; then
   sleep 1
 
   # how to kill the server
-  lsof -i :8009 | tee -a server_pid_lsof.txt
+  lsof -i :${urlPort} | tee -a server_pid_lsof.txt
 
   if [[ ${runall} -eq 1 ]]; then
     step="verify"
@@ -147,13 +156,15 @@ fi
 
 if [[ ${step} == "verify" ]]; then
   #-------------------------------------------------------------------------------- 
+  echo "VERIFY POST:"
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
-  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" http://localhost:8009/rest/score/upload --data @${modelgendir}/t/route_json/gps_generic.json
+  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
 
   #-------------------------------------------------------------------------------- 
+  echo "VERIFY GET:"
   # mock client map-ui - retrieve json
-  curl -w "http_code:[%{http_code}]" http://localhost:8009/rest/score/retrieve
+  curl -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
   if [[ ${runall} -eq 1 ]]; then
     step="browser"
   fi
@@ -162,10 +173,10 @@ fi
 if [[ ${step} == "browser" ]]; then
   #-------------------------------------------------------------------------------- 
   # mock client map-ui - view json in browser
-  chromium-browser --incognito http://localhost:8009/rest/score/retrieve
+  chromium-browser --incognito ${urlJsonServerRestGet}
   # how about some other things?
   # TODO: convert to host-specific call, i.e. http://localhost:8009/directions.html
-  chromium-browser --incognito http://localhost:8009/directions.html http://localhost:8009/directions_markers.html
+  chromium-browser --incognito ${urlJsonServer}/directions.html # http://localhost:8009/directions_markers.html
 fi
 
 #-------------------------------------------------------------------------------- 
