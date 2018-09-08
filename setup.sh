@@ -111,6 +111,9 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   # model files
   $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
 
+  # mock-test links
+  $dbecho rm -v -f ./res/gps_input_route_test.json
+
   # hard-clean
   if [[ ${step} == "reset" ]]; then
     rm -rf ${modelgendir};
@@ -125,6 +128,8 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
     git clean -xdn
     cd ..
   fi
+  # show results
+  step="prepverif"
 fi
 
 if [[ ${step} == "prepare" ]]; then
@@ -142,6 +147,14 @@ if [[ ${step} == "prepare" ]]; then
     ln -v -s ../server/res/gps_input_route.json ./${modelgendir}/output/ # || echo "couldn't create symlink"
     ls -lts ./${modelgendir}/output/gps_input_route.json # || echo "couldn't create symlink"
   fi
+
+  ### MOCK-ONLY: test-output from server to model : mock the map json route received from web
+  #+ link: ./res/gps_input_route_test.json -> ../${modelgendir}/t/route_json/gps_input_route_test.json
+  if [ ! -r  ./res/gps_input_route_test.json ]; then
+    ln -v -s ../${modelgendir}/t/route_json/gps_generic.json ./res/gps_input_route_test.json
+    ls -lts ./res/gps_input_route_test.json # || echo "couldn't create symlink"
+  fi
+
   ### input to server from model : the scored json route scored by the model
   #+ link: ./res/gps_scored_route.json -> ../${modelgendir}/output/gps_scored_route.json
   if [ ! -r ./${modelgendir}/output/gps_scored_route.json ]; then
@@ -149,6 +162,12 @@ if [[ ${step} == "prepare" ]]; then
     ls -lts ./res/gps_scored_route.json # || echo "couldn't create symlink"
   fi
 
+  # show results
+  step="prepverif"
+fi
+if [[ ${step} == "prepverif" ]]; then
+  tree ./${modelgendir}/output/
+  tree ./res
   if [[ ${runall} -eq 1 ]]; then
     step="launch"
   fi

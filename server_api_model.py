@@ -31,6 +31,17 @@ def run_model_hook(hookpath):
         # TODO: need to return a status of some sort
         print("no hook found")
 
+# open json file
+def load_json_file(filename):
+    # tmp:
+    filepath=("%s/%s" % (resource_dir, filename))
+    # open file as json
+    loadedjson = str()
+    with open(filepath, 'r') as infile:
+       loadedjson = json.load(infile)
+    return loadedjson
+
+
 # dump json to file for consumption by whatever else needs it
 def retrieve_json_file(filename="gps_scored_route.json"):
     #if ( quiet != 1):
@@ -46,10 +57,12 @@ def retrieve_json_file(filename="gps_scored_route.json"):
     run_model_hook(runhook)
 
     # open file as json
+    # TODO: call the new function 'def load_json_file'
     loadedjson = str()
     with open(filepath, 'r') as infile:
        loadedjson = json.load(infile)
 
+    # TODO: refactor out ; not used anywhere
     # read into python structure - TODO: not best practice, return json string instead?
     loadedroute = json.loads(loadedjson)
 
@@ -104,22 +117,36 @@ if __name__ == "__main__":
     # test load,return
     import pprint
     if ( selftest >= 1):
+        # self-test strategy:
+        # simulate POST followed by GET
+        # "seed" the POST with a local test json, same as used in setup.sh to test server using curl and post
         print("-------------------------")
+        curtest="MOCK POST"
+        print("%s - loading mock client data" % curtest)
+        mock_client_data = load_json_file("gps_input_route_test.json")
+        # test saving received data to disk
+        print("-------------------------")
+        print("%s - submitting mock client data" % curtest)
+        print("you have one job - save this string!")
+        # used for POST
+        pprint.pprint(
+                save_json_file(mock_client_data, "gps_input_route.json")
+                )
+        print("-------------------------")
+        curtest="MOCK GET"
+        print("-------------------------")
+        print("%s - retrieving mock client data" % curtest)
         print("you have one job - return this string!")
+        # used for GET
         message = retrieve_json_file()
         pprint.pprint(
                 message
                 )
         print("-------------------------")
-        # test save - depends on load
-        print("-------------------------")
-        print("you have one job - save this string!")
-        pprint.pprint(
-                save_json_file(message, "gps_input_route_test.json")
-                )
-        print("-------------------------")
     # make sure file is updated
     if ( selftest >= 1):
+    # test runhook - this is covered by retrieve_json_file
+    if ( selftest == 0):
         run_model_hook(runhook)
     # vvv intentionally fail for testing purposes vvv
     # qwazantch()
@@ -143,15 +170,40 @@ if __name__ == "__main__":
 
 
 '''
-WorkLog:
+Planning:
 Done:
 * save server.py as server_api_model.py , remove all server code
+* in server.py, remove model-specific code and import server_api_model
 
 Current:
-* in server.py, remove model-specific code and import server_api_model
+* enable self-test
 
 
 Future:
 * import model.py
+
+WorkLog:
+steps for Current:
+
+# re-setup all links:
+./setup.sh clean
+./setup.sh prepare
+# run self-test code
+python3 server_api_model.py
+
+
+notes
+- gps_input_route_test.json quite outdated, needed to link back to the one used for curl testing:
+ln -sf ../modelgen/t/route_json/gps_generic.json res/gps_input_route_test.json
+
+- setup.sh - added 'prepverif' mode to list the various symlinks and reduce confusion
+
+- had to add new routine for loading test-json from disk; when testing directly through server this is done in setup.sh using a curl command
+
+- "mock post" working - diff res.good/gps_input_route.json res/gps_input_route.json
+
+- enable "mock get"
+
+- setup.sh - added commands for symlink setup and removal of test-file gps_input_route_test.json 
 
 '''
