@@ -26,7 +26,7 @@ runhook = "./prepare_json.sh"
 
 # update the model
 # TODO: rename to:# def run_model_hook_legacy(hookpath):
-def run_model_hook(hookpath):
+def run_model_hook_legacy(hookpath):
     import os.path
     if (os.path.isfile(hookpath) ):
         from subprocess import call
@@ -38,7 +38,10 @@ def run_model_hook(hookpath):
         print("no hook found")
 
 # call the model - not actually a hook any more. ha. ha. ha.
-def run_model_hook_new():
+def run_model_hook():
+#    calling old hook to troubleshoot issue with enablement in server
+    run_model_hook_legacy(runhook)
+    return
     # vvv temporary, just to test the import vvv
     if ( 1 and __name__ == '__main__'):
         # load data, featdef, etc
@@ -95,7 +98,8 @@ def retrieve_json_file(filename="gps_scored_route.json"):
     #    json.dump(response_json, outfile)
 
     # make sure file is updated
-    run_model_hook(runhook)
+    # run_model_hook_legacy(runhook)
+    run_model_hook()
 
     # open file as json
     # TODO: call the new function 'def load_json_file'
@@ -277,4 +281,15 @@ this is already partially implemented;
 in this file remove the line:
 sys.path.append("./modelgen/code")
 in modelgen repo, just stash pop
+
+- fix runhook using model, i.e. replace the call to external hook with direct model gen calls
+remove the enablement-workarounds from ./t/cmds_dev.sh
+
+something wrong with server after converting runhook.
+* Verified that model still works when directly called (after setting up the test-input file)
+* Verified that old runhook works.
+* Verified that post works (self-test of server_api_model.py)
+* * ./t/cmds_dev.sh
+trying again
+
 '''

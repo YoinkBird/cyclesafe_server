@@ -10,5 +10,9 @@ cd ${repoDir}
 # run self-test code to simulate server post/get (including model hook)
 python3 server_api_model.py -post 1
 # run self-test code solely for model hook
-#+ NOTE: currently depends on -post 1 to generate certain files
-python3 server_api_model.py -post 2
+#+ NOTE: runhook will always depend on -post 1 to generate certain files
+#+ disabling while integrating new runhook
+# python3 server_api_model.py -post 2
+
+# visualise result
+./setup.sh prepverif
