@@ -20,6 +20,38 @@ from modelgen.code import model #  works, now that sys.path.append has the corre
 
 from modelgen.code.model import score_manual_generic_route # works!
 from modelgen.code.model import * # works!
+# vvv temporary, just to test the import vvv
+if ( 0 and __name__ == '__main__'):
+    # load data, featdef, etc
+    # global options
+    options = {
+            'graphics' : 0, # 0 - disable, 1 - enable
+            'verbose' : 0, # -1 - absolutely silent 0 - minimal info, 1+ - increasing levels
+            }
+    # choose which model to run
+    runmodels = {}
+    # essential options for route-scoring service
+    # disable only temporarily to avoid filling up jupyter qtconsole buffer while trying to interpret results of previous runs
+    if(1):
+        runmodels['score_manual_generic_route'] = 1
+        runmodels['map_generate_human_readable_dectree'] = 1
+        runmodels['map_manual_analyse_strongest_predictors'] = 0
+    # new hack - functions depend on global var
+#    model.store_opt_runmodels(runmodels)
+    model.runmodels=runmodels
+    # localise options, avoid accidental dependencies in other functions
+    options_local = options
+    del(options)
+    ################################################################################
+    # PREPROCESS
+    ################################################################################
+    # load data, featdef, etc
+    (data, data_dummies, df_int_nonan, featdef) = model_prepare(**options_local)
+    ################################################################################
+    # /PREPROCESS
+    ################################################################################
+    score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
+# ^^^ temporary, just to test the import ^^^
 
 #from modelgen.code import model
 #import modelgen.code.helpers
@@ -237,5 +269,7 @@ ln -sf ../modelgen/t/route_json/gps_generic.json res/gps_input_route_test.json
 - adding cli options to control levels of self-testing
 
 - fixing module import of model.py, albeit with hacks
+
+- fixing model.py relative paths. model.py was always run from specific relative dir, therefore many relpaths were introduced which now need to be fixed
 
 '''
