@@ -7,92 +7,16 @@ import re
 import shutil
 import os.path
 
+from server_api_model import retrieve_json_file,save_json_file
 '''
 Documentation: see setup.sh
 '''
 
 # hard-coded globals
-resource_dir = "res"
+# vvv duplicated in server_api_model
 quiet = 0
+# vvv used in "main", duplicated in server_api_model
 selftest = 0
-runhook = "./prepare_json.sh"
-
-# update the model
-def run_model_hook(hookpath):
-    import os.path
-    if (os.path.isfile(hookpath) ):
-        from subprocess import call
-        # https://stackoverflow.com/a/32084182
-        # call(["ls","-ltr"])
-        call(["bash" , hookpath])
-    else:
-        # TODO: need to return a status of some sort
-        print("no hook found")
-
-# dump json to file for consumption by whatever else needs it
-def retrieve_json_file(filename="gps_scored_route.json"):
-    #if ( quiet != 1):
-    #    print("# save to file")
-    # tmp:
-    filepath=("%s/%s" % (resource_dir, filename))
-    if ( quiet != 1):
-        print("mock-response sending to : " + filepath)
-    # with open(filepath, 'w') as outfile:
-    #    json.dump(response_json, outfile)
-
-    # make sure file is updated
-    run_model_hook(runhook)
-
-    # open file as json
-    loadedjson = str()
-    with open(filepath, 'r') as infile:
-       loadedjson = json.load(infile)
-
-    # read into python structure - TODO: not best practice, return json string instead?
-    loadedroute = json.loads(loadedjson)
-
-    # deprecated, meant for verification
-    # return_value = -1
-    # verify
-    # if( response_json == loadedjson ):
-    #     print("json string resurrected successfully")
-    #     return_value = 1
-    # compare the dict if possible?
-
-    # return json string
-    return loadedjson
-
-# save json to file for consumption by whatever else needs it
-#+ in practice, not such a great idea, but for now it is what it is
-#+ ultimately, the server needs to call the model anyway.
-#+ will have to fix the encoding issues of converting to 2to3; not impossible, but super annoying
-def save_json_file(response_json, filename):
-    if ( quiet != 1):
-        print("# save to file")
-    # tmp:
-    filepath=("%s/%s" % (resource_dir, filename))
-    # if ( quiet != 1):
-    #     print("mock-response sending to : " + filepath)
-    with open(filepath, 'w') as outfile:
-       json.dump(response_json, outfile)
-
-    # open file as json
-    # loadedjson = str()
-    # with open(filepath, 'r') as infile:
-    #    loadedjson = json.load(infile)
-
-    # loadedroute = json.loads(loadedjson)
-
-    # deprecated, meant for verification
-    # return_value = -1
-    # verify
-    # if( response_json == loadedjson ):
-    #     print("json string resurrected successfully")
-    #     return_value = 1
-    # compare the dict if possible?
-
-    # return some sort of success indicator, would probably have to try-catch though
-    return filename
 
 class Server(BaseHTTPRequestHandler):
     def _set_headers_common(self):
