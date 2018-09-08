@@ -7,18 +7,14 @@ import re
 import shutil
 import os.path
 
-# import modelgen.code 
-from modelgen import * # works
-from modelgen.code import *
-from modelgen.code import helpers # works
 from os import sys
-
 # start here: https://stackoverflow.com/questions/50598995/how-do-i-import-all-functions-from-a-package-in-python
 #+ TODO: move into modelgen's __init__.py 
 sys.path.append("./modelgen/code")
-from modelgen.code import model #  works, now that sys.path.append has the correct path. I certainly was tired...
 
-from modelgen.code.model import score_manual_generic_route # works!
+# import modelgen.code 
+from modelgen import * # works
+from modelgen.code import model #  works, now that sys.path.append has the correct path. I certainly was tired...
 from modelgen.code.model import * # works!
 
 '''
@@ -269,6 +265,15 @@ ln -sf ../modelgen/t/route_json/gps_generic.json res/gps_input_route_test.json
 - fixing model.py relative paths. model.py was always run from specific relative dir, therefore many relpaths were introduced which now need to be fixed
 
 - fix module import: removing redundant imports and moving into model-hook subroutine. setting up as '-post 2'
+Remove dev-code for imports by viewing list of changes since before the imports were added:
+    git diff 6910f78df06d2405406557762dfad5a4e5a0c872 server_api_model.py
+    loop through lines of potentially unnecessary imports:
+        comment line(s) # rely on git add -p to track progress
+        ./t/cmds_dev.sh
+        if fail: uncomment, mark for debug
+        if pass: git add -p
+    end_loop
+    remove all commented based on git diff --cached
 
 - NEXT: fix module import: move all path setup,etc into __init__.py
 this is already partially implemented;
