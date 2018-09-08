@@ -202,6 +202,7 @@ Planning:
 Done:
 * save server.py as server_api_model.py , remove all server code
 * in server.py, remove model-specific code and import server_api_model
+* enable self-test
 
 Current:
 * import model.py
