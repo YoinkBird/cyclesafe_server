@@ -113,10 +113,18 @@ def save_json_file(response_json, filename):
 # 
 if __name__ == "__main__":
     from sys import argv
+    # time for self-test?
+    if len(argv) >= 2:
+        # power-on self-test
+        if(argv[1] == "-post"):
+            selftest = 1
+            # levels - only if 3 args and is digit, avoid accidents later when proper argparsing implemented
+            if ( len(argv) == 3 and argv[2].isdigit() ):
+                selftest = int(argv[2])
     
     # test load,return
     import pprint
-    if ( selftest >= 1):
+    if ( selftest == 1):
         # self-test strategy:
         # simulate POST followed by GET
         # "seed" the POST with a local test json, same as used in setup.sh to test server using curl and post
@@ -143,14 +151,15 @@ if __name__ == "__main__":
                 message
                 )
         print("-------------------------")
-    # make sure file is updated
-    if ( selftest >= 1):
-    # test runhook - this is covered by retrieve_json_file
-    if ( selftest == 0):
+    # explicitely test runhook - otherwise this is covered by retrieve_json_file
+    if ( selftest == 2):
         run_model_hook(runhook)
-    # vvv intentionally fail for testing purposes vvv
-    # qwazantch()
+    # intentionally fail for testing purposes by calling non-existing function
+    if ( selftest == 3):
+        print("intentionally fail by calling non-existing function")
+        qwazantch()
     # /test
+
         
 
 
@@ -189,7 +198,7 @@ steps for Current:
 ./setup.sh clean
 ./setup.sh prepare
 # run self-test code
-python3 server_api_model.py
+python3 server_api_model.py -post 1
 
 
 notes
@@ -205,5 +214,7 @@ ln -sf ../modelgen/t/route_json/gps_generic.json res/gps_input_route_test.json
 - enable "mock get"
 
 - setup.sh - added commands for symlink setup and removal of test-file gps_input_route_test.json 
+
+- adding cli options to control levels of self-testing
 
 '''
