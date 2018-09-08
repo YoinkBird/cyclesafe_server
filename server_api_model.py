@@ -7,6 +7,25 @@ import re
 import shutil
 import os.path
 
+# import modelgen.code 
+from modelgen import * # works
+from modelgen.code import *
+from modelgen.code import helpers # works
+from os import sys
+
+# start here: https://stackoverflow.com/questions/50598995/how-do-i-import-all-functions-from-a-package-in-python
+#+ TODO: move into modelgen's __init__.py 
+sys.path.append("./modelgen/code")
+from modelgen.code import model #  works, now that sys.path.append has the correct path. I certainly was tired...
+
+from modelgen.code.model import score_manual_generic_route # works!
+from modelgen.code.model import * # works!
+
+#from modelgen.code import model
+#import modelgen.code.helpers
+#from modelgen.code.helpers import *
+#from modelgen.code.feature_definitions import *
+#from modelgen.code.txdot_parse import *
 
 '''
 Purpose: interface with prediction-model generation module
@@ -185,11 +204,10 @@ Done:
 * in server.py, remove model-specific code and import server_api_model
 
 Current:
-* enable self-test
+* import model.py
 
 
 Future:
-* import model.py
 
 WorkLog:
 steps for Current:
@@ -216,5 +234,7 @@ ln -sf ../modelgen/t/route_json/gps_generic.json res/gps_input_route_test.json
 - setup.sh - added commands for symlink setup and removal of test-file gps_input_route_test.json 
 
 - adding cli options to control levels of self-testing
+
+- fixing module import of model.py, albeit with hacks
 
 '''
