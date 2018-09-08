@@ -8,14 +8,11 @@ import shutil
 import os.path
 
 from os import sys
-# start here: https://stackoverflow.com/questions/50598995/how-do-i-import-all-functions-from-a-package-in-python
-#+ TODO: move into modelgen's __init__.py 
-sys.path.append("./modelgen/code")
 
 # import modelgen.code 
-from modelgen import * # works
-from modelgen.code import model #  works, now that sys.path.append has the correct path. I certainly was tired...
-from modelgen.code.model import * # works!
+from modelgen import *
+from modelgen.code import model
+from modelgen.code.model import *
 
 '''
 Purpose: interface with prediction-model generation module
@@ -234,6 +231,7 @@ Done:
 
 Current:
 * import model.py (replace runhook)
+* import modelgen - fixing relative path import
 
 
 Future:
@@ -275,7 +273,7 @@ Remove dev-code for imports by viewing list of changes since before the imports 
     end_loop
     remove all commented based on git diff --cached
 
-- NEXT: fix module import: move all path setup,etc into __init__.py
+- fix module import: move all path setup,etc into __init__.py
 this is already partially implemented;
 in this file remove the line:
 sys.path.append("./modelgen/code")
