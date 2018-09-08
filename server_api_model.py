@@ -9,10 +9,9 @@ import os.path
 
 from os import sys
 
-# import modelgen.code 
-from modelgen import *
+# from modelgen.code, import routines for interacting with prediction model
+#+ 'code' is a subdir because modelgen contains other resources as well. this is not best practice.
 from modelgen.code import model
-from modelgen.code.model import *
 
 '''
 Purpose: interface with prediction-model generation module
@@ -66,11 +65,11 @@ def run_model_hook_new():
         # PREPROCESS
         ################################################################################
         # load data, featdef, etc
-        (data, data_dummies, df_int_nonan, featdef) = model_prepare(**options_local)
+        (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
         ################################################################################
         # /PREPROCESS
         ################################################################################
-        score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
+        model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
     # ^^^ temporary, just to test the import ^^^
 
 # open json file
@@ -228,14 +227,14 @@ Done:
 * in server.py, remove model-specific code and import server_api_model
 * enable self-test
 * enable import of model.py (fix all runtime issues)
+* import modelgen - fixing path import
 
 Current:
 * import model.py (replace runhook)
-* import modelgen - fixing relative path import
+* fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
 
 
 Future:
-* fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
 
 WorkLog:
 steps for Current Work:
