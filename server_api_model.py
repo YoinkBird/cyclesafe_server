@@ -235,12 +235,14 @@ Done:
 * save server.py as server_api_model.py , remove all server code
 * in server.py, remove model-specific code and import server_api_model
 * enable self-test
+* enable import of model.py (fix all runtime issues)
 
 Current:
-* import model.py
 
 
 Future:
+* import model.py (replace runhook)
+* fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
 
 WorkLog:
 steps for Current:
