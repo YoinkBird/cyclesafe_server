@@ -110,6 +110,8 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
   # model files
   $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
+  # remove pickled model
+  $dbecho rm -v -f ./${modelgendir}/output/human_read_dectree.pkl
 
   # mock-test links
   $dbecho rm -v -f ./res/gps_input_route_test.json
@@ -132,6 +134,9 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   step="prepverif"
 fi
 
+if [[ ${step} == "prep" ]]; then
+  step="prepare"
+fi
 if [[ ${step} == "prepare" ]]; then
   # single entry point from model to server, i.e. links go through <modeldir>/server
   #+ ./${modelgendir}/server -> ../
