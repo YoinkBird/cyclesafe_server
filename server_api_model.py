@@ -23,6 +23,11 @@ quiet = 0
 selftest = 0
 runhook = "./prepare_json.sh"
 
+# mock storage
+if( __name__ == '__main__' ):
+    # kv of keys and file-paths
+    keystore = {}
+
 def gen_storage_key():
     import random
     # generate random key
@@ -64,19 +69,24 @@ def get_model_results(**kwargs):
         # </mega_hack_runmodels>
     # ^^^ hacks for enabling import of model code ^^^
 
-    # update the filepath
-    if ( 'filepath' in kwargs):
-        filepath = kwargs['filepath']
-        options_local['local_json_input'] = filepath
-    # update the key and filepath-for-key
-    if ( 'key' in kwargs):
-        key = kwargs['key']
-        # could be set to 'false'
-        if ( key ):
-            options_local['request_key'] = key
-            options_local['local_json_input'] = gen_filepath_for_key( options_local['local_json_input'] , key)
-    # load geodata from file
-    geodata = load_json_file(options_local['local_json_input'])
+    # get geodata from passed-in args or from file
+    geodata = -1
+    if ( 'geodata' in kwargs ):
+        geodata = kwargs['geodata']
+    else:
+        # update the filepath
+        if ( 'filepath' in kwargs):
+            filepath = kwargs['filepath']
+            options_local['local_json_input'] = filepath
+        # update the key and filepath-for-key
+        if ( 'key' in kwargs):
+            key = kwargs['key']
+            # could be set to 'false'
+            if ( key ):
+                options_local['request_key'] = key
+                options_local['local_json_input'] = gen_filepath_for_key( options_local['local_json_input'] , key)
+        # load geodata
+        geodata = load_json_file(options_local['local_json_input'])
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
     # score the input data (paths are hard-coded within 'model', yay)
@@ -171,6 +181,8 @@ if __name__ == "__main__":
     # test load,return
     import pprint
     if ( selftest == 1):
+        # store to file or data-structure
+        mock_storage_to_file = 0
         # self-test strategy:
         # simulate POST followed by GET
         # "seed" the POST with a local test json, same as used in setup.sh to test server using curl and post
@@ -183,11 +195,22 @@ if __name__ == "__main__":
         print("%s - submitting mock client data" % curtest)
         print("you have one job - save this string!")
         # used for POST
-        key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json")
-        # briefly test hard-coding key for server
-        # key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json", 100001)
-        pprint.pprint(
-                (key_generated, filepath_generated)
+        # generate key
+        key_generated = gen_storage_key()
+        # if file-storage desired
+        if( mock_storage_to_file == 1 ):
+            key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json")
+            # briefly test hard-coding key for server
+            # key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json", 100001)
+            pprint.pprint(
+                    filepath_generated
+                    )
+        else:
+            # if non-file storage desired:
+            # hack mock data storage - save_json_file will still save file to disk
+            keystore[ key_generated ] = mock_client_data
+            pprint.pprint(
+                key_generated
                 )
         print("-------------------------")
         curtest="MOCK GET"
@@ -197,8 +220,11 @@ if __name__ == "__main__":
         # used for GET
         #  note: would need to pass-in the key
         key_received = key_generated
-        message = retrieve_json_results( key_received )
-        pprint.pprint(
+        if( mock_storage_to_file == 1 ):
+            message = get_model_results( key = key_received )
+        else:
+            message = get_model_results( geodata = keystore[ key_received ])
+            pprint.pprint(
                 message
                 )
         print("-------------------------")
@@ -323,5 +349,6 @@ phases:
 2. client-side: extract key from response, send in next request
 2b: server-side: use request-key (deactivate static keys)
 3: server-side: global dict to store keys and json (no more files)
+3b: [x] server.server_api_model.py : global dict to store keys and json (no more files)
 4: server-side: sqlite db ( no more global dict )
 '''
