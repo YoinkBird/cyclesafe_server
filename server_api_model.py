@@ -4,7 +4,6 @@ import socketserver
 import json
 import cgi
 import re
-import shutil
 import os.path
 
 from os import sys
@@ -39,38 +38,32 @@ def run_model_hook_legacy(hookpath):
 
 # call the model - not actually a hook any more. ha. ha. ha.
 def run_model_hook():
-    # vvv temporary, just to test the import vvv
-    if ( 1 ):
+    if(1):
+        # vvv hacks for enabling import of model code vvv
+        # copied in out of the "if main" section of model.py, really ought to be properly abstracted.
         # load data, featdef, etc
         # global options
-        options = {
+        options_local = {
                 'graphics' : 0, # 0 - disable, 1 - enable
                 'verbose' : 0, # -1 - absolutely silent 0 - minimal info, 1+ - increasing levels
                 }
+        # <mega_hack_runmodels>
+        # directly set global hash within 'model'. this hash controls which functions are called, and is unfortunately not better designed with on 'model' at the moment
         # choose which model to run
         runmodels = {}
         # essential options for route-scoring service
-        # disable only temporarily to avoid filling up jupyter qtconsole buffer while trying to interpret results of previous runs
         if(1):
             runmodels['score_manual_generic_route'] = 1
             runmodels['map_generate_human_readable_dectree'] = 1
             runmodels['map_manual_analyse_strongest_predictors'] = 0
         # new hack - functions depend on global var
-    #    model.store_opt_runmodels(runmodels)
         model.runmodels=runmodels
-        # localise options, avoid accidental dependencies in other functions
-        options_local = options
-        del(options)
-        ################################################################################
-        # PREPROCESS
-        ################################################################################
-        # load data, featdef, etc
-        (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
-        ################################################################################
-        # /PREPROCESS
-        ################################################################################
-        model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
-    # ^^^ temporary, just to test the import ^^^
+        # </mega_hack_runmodels>
+        # ^^^ hacks for enabling import of model code ^^^
+    # load data, featdef, etc
+    (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
+    # score the input data (paths are hard-coded within 'model', yay)
+    model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
 
 # open json file
 def load_json_file(filename):
@@ -91,8 +84,6 @@ def retrieve_json_file(filename="gps_scored_route.json"):
     filepath=("%s/%s" % (resource_dir, filename))
     if ( quiet != 1):
         print("mock-response sending to : " + filepath)
-    # with open(filepath, 'w') as outfile:
-    #    json.dump(response_json, outfile)
 
     # make sure file is updated
     # run_model_hook_legacy(runhook)
@@ -103,18 +94,6 @@ def retrieve_json_file(filename="gps_scored_route.json"):
     loadedjson = str()
     with open(filepath, 'r') as infile:
        loadedjson = json.load(infile)
-
-    # TODO: refactor out ; not used anywhere
-    # read into python structure - TODO: not best practice, return json string instead?
-    loadedroute = json.loads(loadedjson)
-
-    # deprecated, meant for verification
-    # return_value = -1
-    # verify
-    # if( response_json == loadedjson ):
-    #     print("json string resurrected successfully")
-    #     return_value = 1
-    # compare the dict if possible?
 
     # return json string
     return loadedjson
@@ -133,26 +112,11 @@ def save_json_file(response_json, filename):
     with open(filepath, 'w') as outfile:
        json.dump(response_json, outfile)
 
-    # open file as json
-    # loadedjson = str()
-    # with open(filepath, 'r') as infile:
-    #    loadedjson = json.load(infile)
-
-    # loadedroute = json.loads(loadedjson)
-
-    # deprecated, meant for verification
-    # return_value = -1
-    # verify
-    # if( response_json == loadedjson ):
-    #     print("json string resurrected successfully")
-    #     return_value = 1
-    # compare the dict if possible?
-
     # return some sort of success indicator, would probably have to try-catch though
     return filename
 
         
-# 
+# this section meant primarily for self-testing
 if __name__ == "__main__":
     from sys import argv
     # time for self-test?
@@ -230,12 +194,14 @@ Done:
 * enable import of model.py (fix all runtime issues)
 * import modelgen - fixing path import
 * import model.py (replace runhook)
+* fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
 
 Current:
-* fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
+* file-IPC : remove all file references from model.py
 
 
 Future:
+* stop using files for information sharing
 
 WorkLog:
 steps for Current Work:

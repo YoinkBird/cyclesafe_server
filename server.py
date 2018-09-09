@@ -50,7 +50,7 @@ class Server(BaseHTTPRequestHandler):
     def do_GET(self):
         if ( quiet != 1):
             print("------------------------- GET -------------------------")
-            #{'hello': 'world', 'received': 'ok'}
+            #stub for test-response# {'hello': 'world', 'received': 'ok'}
         # determine path
         # src: https://docs.python.org/2/library/urlparse.html
         # clue via src: https://stackoverflow.com/questions/33662842/simple-python-server-to-process-get-and-post-requests-with-json
@@ -108,7 +108,6 @@ class Server(BaseHTTPRequestHandler):
             return
 
         # prepare headers
-
         ctype, pdict = cgi.parse_header(self.headers['content-type'])
         
         # refuse to receive non-json content
@@ -122,10 +121,6 @@ class Server(BaseHTTPRequestHandler):
         length = int(self.headers['content-length'])
         message = json.loads(self.rfile.read(length))
 
-# note sure if this could conflict with the map json        
-#        # add a property to the object, just to mess with data
-#        message['received'] = 'ok'
-        
         # send the message back - good for verification, I suppose
         self._set_headers_json()
         self.end_headers()
