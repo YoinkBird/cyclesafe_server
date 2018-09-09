@@ -126,7 +126,8 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(message).encode())
         # store file
-        server_api_model.save_json_file(message, "gps_input_route.json")
+        #+ TODO: implement keys, but for now: genkey = False 
+        server_api_model.save_json_file(message, "gps_input_route.json", False)
         if ( quiet != 1):
             print("you HAD one job - store the json! maybe you did? IDK")
             print("------------------------- /POST -------------------------")

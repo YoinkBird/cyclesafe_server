@@ -23,6 +23,16 @@ quiet = 0
 selftest = 0
 runhook = "./prepare_json.sh"
 
+def gen_storage_key():
+    import random
+    # generate random key
+    return random.randint(10000,
+                          99999)
+
+def gen_filepath_for_key( filepath, key="12346"):
+    filepath = "%s_%s" % (filepath,key)
+    return filepath
+
 # update the model
 # TODO: rename to:# def run_model_hook_legacy(hookpath):
 def run_model_hook_legacy(hookpath):
@@ -37,10 +47,27 @@ def run_model_hook_legacy(hookpath):
         print("no hook found")
 
 # call the model - not actually a hook any more. ha. ha. ha.
+# input:
+# * key : retrieve data for key:
+# * * file-storage - retrieve data from filepath constructed from default filename and key
+# * * db - retrieve data from db
+# * filepath - retrieve data from filepath
+# * key , filepath : retrieve data from filepath constructed from filepath and key
 # TODO: pass-in the geodata
-def run_model_hook():
+def run_model_hook(**kwargs):
     # get data-structures which contain configs to control execution
     options_local, runmodels = model.get_global_configs()
+    # update the filepath
+    if ( 'filepath' in kwargs):
+        filepath = kwargs['filepath']
+        options_local['local_json_input'] = filepath
+    # update the key and filepath-for-key
+    if ( 'key' in kwargs):
+        key = kwargs['key']
+        # could be set to 'false'
+        if ( key ):
+            options_local['request_key'] = key
+            options_local['local_json_input'] = gen_filepath_for_key( options_local['local_json_input'] , key)
     # vvv hacks for enabling import of model code vvv
     if(1):
         # new hack - functions depend on global var
@@ -68,7 +95,9 @@ def load_json_file(filename):
 
 
 # dump json to file for consumption by whatever else needs it
-def retrieve_json_file(filename="gps_scored_route.json"):
+#+ default filename and key
+#+ TODO: this no longer relies on input file, for now just pass in nothing?
+def retrieve_json_file(filename="gps_scored_route.json",key=False):
     #if ( quiet != 1):
     #    print("# save to file")
     # tmp:
@@ -78,7 +107,8 @@ def retrieve_json_file(filename="gps_scored_route.json"):
 
     # make sure file is updated
     # run_model_hook_legacy(runhook)
-    return run_model_hook()
+    # run_model_hook will retrieve data by key, whether from file or db
+    return run_model_hook( key = key )
 
     # open file as json
     # TODO: call the new function 'def load_json_file'
@@ -93,18 +123,23 @@ def retrieve_json_file(filename="gps_scored_route.json"):
 #+ in practice, not such a great idea, but for now it is what it is
 #+ ultimately, the server needs to call the model anyway.
 #+ will have to fix the encoding issues of converting to 2to3; not impossible, but super annoying
-def save_json_file(response_json, filename):
+# return key
+def save_json_file(response_json, filename, genkey=True):
     if ( quiet != 1):
         print("# save to file")
-    # tmp:
+    # tmp: default filepath
     filepath=("%s/%s" % (resource_dir, filename))
+    # generate key, update filepath accordingly
+    key = gen_storage_key()
+    if( genkey ):
+        filepath = gen_filepath_for_key( "%s/%s" % (resource_dir, filename) , key)
     # if ( quiet != 1):
     #     print("mock-response sending to : " + filepath)
     with open(filepath, 'w') as outfile:
        json.dump(response_json, outfile)
 
     # return some sort of success indicator, would probably have to try-catch though
-    return filename
+    return (key, filepath)
 
         
 # this section meant primarily for self-testing
@@ -134,8 +169,9 @@ if __name__ == "__main__":
         print("%s - submitting mock client data" % curtest)
         print("you have one job - save this string!")
         # used for POST
+        key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json")
         pprint.pprint(
-                save_json_file(mock_client_data, "gps_input_route.json")
+                (key_generated, filepath_generated)
                 )
         print("-------------------------")
         curtest="MOCK GET"
@@ -143,11 +179,17 @@ if __name__ == "__main__":
         print("%s - retrieving mock client data" % curtest)
         print("you have one job - return this string!")
         # used for GET
-        message = retrieve_json_file()
+        #  note: would need to pass-in the key
+        key_received = key_generated
+        message = retrieve_json_file( "" , key_generated)
         pprint.pprint(
                 message
                 )
         print("-------------------------")
+        # record files so they can be deleted easily. append file src: https://stackoverflow.com/a/4706520
+        filepath_inferred = gen_filepath_for_key("gps_input_route.json",key_generated)
+        with open("list_gen_gps_input_route_json.txt", "a") as myfile:
+            myfile.write(filepath_inferred + "\n")
     # explicitely test runhook - otherwise this is covered by retrieve_json_file
     if ( selftest == 2):
         # run_model_hook(runhook)
@@ -189,10 +231,10 @@ Done:
 
 Current:
 * file-IPC : remove all file references from model.py
+* stop using files for information sharing
 
 
 Future:
-* stop using files for information sharing
 
 WorkLog:
 steps for Current Work:
@@ -256,6 +298,14 @@ convert model.py to have the data simply passed in and to return data
 have server_api_model.py make these calls
 2. 
 
-
-
+- keystore : generate random key for post, use for storage and then return. pass in key for get to retrieve
+verified in server.server_api_model.py (local) 
+TODO: implement, verify in server.server.py (web)
+phases:
+1. server-side: implement static key storage (global var)
+1b server-side: return key to client
+2. client-side: extract key from response, send in next request
+2b: server-side: use request-key (deactivate static keys)
+3: server-side: global dict to store keys and json (no more files)
+4: server-side: sqlite db ( no more global dict )
 '''

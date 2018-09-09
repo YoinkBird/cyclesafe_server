@@ -106,6 +106,13 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   $dbecho rm -v -f ./res/gps_scored_route.json
   # server files
   $dbecho rm -v -f ./res/gps_input_route.json
+  # server files - keyed
+  $dbecho rm -v -f ./res/gps_input_route.json_*
+  # server files - keyed, list of them, need to process
+  if [[ -r ./list_gen_gps_input_route_json.txt ]]; then
+    $dbecho cat ./list_gen_gps_input_route_json.txt
+  fi
+
 
   # model links 
   $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
@@ -174,6 +181,10 @@ fi
 if [[ ${step} == "prepverif" ]]; then
   tree ./${modelgendir}/output/
   tree ./res
+  if [[ -r ./list_gen_gps_input_route_json.txt ]]; then
+    echo "list of gps input files"
+    cat ./list_gen_gps_input_route_json.txt
+  fi
   if [[ ${runall} -eq 1 ]]; then
     step="launch"
   fi
