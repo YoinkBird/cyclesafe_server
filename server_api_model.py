@@ -344,7 +344,7 @@ have server_api_model.py make these calls
 verified in server.server_api_model.py (local) 
 TODO: implement, verify in server.server.py (web)
 phases:
-1. server-side: implement static key storage (global var)
+1. [x] server-side: implement static key storage (global var)
 1b server-side: return key to client
 2. client-side: extract key from response, send in next request
 2b: server-side: use request-key (deactivate static keys)
