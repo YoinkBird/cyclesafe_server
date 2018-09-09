@@ -38,8 +38,10 @@ def run_model_hook_legacy(hookpath):
 
 # call the model - not actually a hook any more. ha. ha. ha.
 def run_model_hook():
-    if(1):
-        # vvv hacks for enabling import of model code vvv
+    # get data-structures which contain configs to control execution
+    options_local, runmodels = model.get_global_configs()
+    # vvv hacks for enabling import of model code vvv
+    if(0):
         # copied in out of the "if main" section of model.py, really ought to be properly abstracted.
         # load data, featdef, etc
         # global options
@@ -56,10 +58,12 @@ def run_model_hook():
             runmodels['score_manual_generic_route'] = 1
             runmodels['map_generate_human_readable_dectree'] = 1
             runmodels['map_manual_analyse_strongest_predictors'] = 0
+    if(1):
         # new hack - functions depend on global var
         model.runmodels=runmodels
         # </mega_hack_runmodels>
-        # ^^^ hacks for enabling import of model code ^^^
+    # ^^^ hacks for enabling import of model code ^^^
+
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
     # score the input data (paths are hard-coded within 'model', yay)
@@ -256,4 +260,15 @@ something wrong with server after converting runhook.
 trying again
 issue: gps_scored_route.json not getting created, i.e. model scoring not running
 => ugh. still had the "if __file__ eq 'main'" in the runhook code. baka.
+
+---------------------------------------
+- file-IPC: remove files for infosharing
+1. move all file references from model.py
+convert model.py to have the data simply passed in and to return data
+  start in model.py by having all file-paths abstracted down into "if main"
+have server_api_model.py make these calls
+2. 
+
+
+
 '''
