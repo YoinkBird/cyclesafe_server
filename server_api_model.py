@@ -41,23 +41,6 @@ def run_model_hook():
     # get data-structures which contain configs to control execution
     options_local, runmodels = model.get_global_configs()
     # vvv hacks for enabling import of model code vvv
-    if(0):
-        # copied in out of the "if main" section of model.py, really ought to be properly abstracted.
-        # load data, featdef, etc
-        # global options
-        options_local = {
-                'graphics' : 0, # 0 - disable, 1 - enable
-                'verbose' : 0, # -1 - absolutely silent 0 - minimal info, 1+ - increasing levels
-                }
-        # <mega_hack_runmodels>
-        # directly set global hash within 'model'. this hash controls which functions are called, and is unfortunately not better designed with on 'model' at the moment
-        # choose which model to run
-        runmodels = {}
-        # essential options for route-scoring service
-        if(1):
-            runmodels['score_manual_generic_route'] = 1
-            runmodels['map_generate_human_readable_dectree'] = 1
-            runmodels['map_manual_analyse_strongest_predictors'] = 0
     if(1):
         # new hack - functions depend on global var
         model.runmodels=runmodels
@@ -67,7 +50,8 @@ def run_model_hook():
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
     # score the input data (paths are hard-coded within 'model', yay)
-    model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
+    response_json = model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
+    return response_json
 
 # open json file
 def load_json_file(filename):
@@ -91,7 +75,7 @@ def retrieve_json_file(filename="gps_scored_route.json"):
 
     # make sure file is updated
     # run_model_hook_legacy(runhook)
-    run_model_hook()
+    return run_model_hook()
 
     # open file as json
     # TODO: call the new function 'def load_json_file'
