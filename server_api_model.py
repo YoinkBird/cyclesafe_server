@@ -229,9 +229,9 @@ Done:
 * enable self-test
 * enable import of model.py (fix all runtime issues)
 * import modelgen - fixing path import
+* import model.py (replace runhook)
 
 Current:
-* import model.py (replace runhook)
 * fix hacks from import model.py (hacks for enablement) - just diff against master and fix whatever is a hack
 
 

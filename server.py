@@ -7,7 +7,7 @@ import re
 import shutil
 import os.path
 
-from server_api_model import retrieve_json_file,save_json_file
+import server_api_model
 '''
 Documentation: see setup.sh
 '''
@@ -65,7 +65,7 @@ class Server(BaseHTTPRequestHandler):
             self.end_headers()
             if ( parsed_path.path == "/rest/score/retrieve" ):
                 self.wfile.write(json.dumps(
-                    retrieve_json_file()
+                    server_api_model.retrieve_json_file()
                     ).encode())
             if ( quiet != 1):
                 print("you HAD one job - return the json! maybe you did? IDK")
@@ -131,7 +131,7 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(message).encode())
         # store file
-        save_json_file(message, "gps_input_route.json")
+        server_api_model.save_json_file(message, "gps_input_route.json")
         if ( quiet != 1):
             print("you HAD one job - store the json! maybe you did? IDK")
             print("------------------------- /POST -------------------------")
@@ -154,29 +154,6 @@ def run(server_class=HTTPServer, handler_class=Server, port=8008):
 if __name__ == "__main__":
     from sys import argv
     
-    # test load,return
-    import pprint
-    if ( selftest >= 1):
-        print("-------------------------")
-        print("you have one job - return this string!")
-        message = retrieve_json_file()
-        pprint.pprint(
-                message
-                )
-        print("-------------------------")
-        # test save - depends on load
-        print("-------------------------")
-        print("you have one job - save this string!")
-        pprint.pprint(
-                save_json_file(message, "gps_input_route_test.json")
-                )
-        print("-------------------------")
-    # make sure file is updated
-    if ( selftest >= 1):
-        run_model_hook(runhook)
-    # vvv intentionally fail vvv
-    # qwazantch()
-    # /test
     if ( selftest == 0):
         if len(argv) == 2:
             run(port=int(argv[1]))
