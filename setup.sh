@@ -214,17 +214,24 @@ if [[ ${step} == "verify" ]]; then
   echo "VERIFY POST:"
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
-  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
+  set -x
+  # hide output, it floods the screen and makes visual inspection difficult
+  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json -o /dev/null
 
+  set +x
   #-------------------------------------------------------------------------------- 
   echo "VERIFY GET:"
   # mock client map-ui - retrieve json
+  set -x
   curl -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
+  set +x
 
   #-------------------------------------------------------------------------------- 
   echo "VERIFY GET HTML:"
   # mock client map-ui - retrieve json
+  set -x
   curl -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+  set +x
 
   if [[ ${runall} -eq 1 ]]; then
     step="browser"
