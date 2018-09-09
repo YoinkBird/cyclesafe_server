@@ -46,7 +46,7 @@ def run_model_hook_legacy(hookpath):
         # TODO: need to return a status of some sort
         print("no hook found")
 
-# call the model - not actually a hook any more. ha. ha. ha.
+# pass geodata to model, get scores ( prediction results )
 # input:
 # * key : retrieve data for key:
 # * * file-storage - retrieve data from filepath constructed from default filename and key
@@ -54,9 +54,16 @@ def run_model_hook_legacy(hookpath):
 # * filepath - retrieve data from filepath
 # * key , filepath : retrieve data from filepath constructed from filepath and key
 # TODO: pass-in the geodata
-def run_model_hook(**kwargs):
+def get_model_results(**kwargs):
     # get data-structures which contain configs to control execution
     options_local, runmodels = model.get_global_configs()
+    # vvv hacks for enabling import of model code vvv
+    if(1):
+        # new hack - functions depend on global var
+        model.runmodels=runmodels
+        # </mega_hack_runmodels>
+    # ^^^ hacks for enabling import of model code ^^^
+
     # update the filepath
     if ( 'filepath' in kwargs):
         filepath = kwargs['filepath']
@@ -68,14 +75,7 @@ def run_model_hook(**kwargs):
         if ( key ):
             options_local['request_key'] = key
             options_local['local_json_input'] = gen_filepath_for_key( options_local['local_json_input'] , key)
-    # vvv hacks for enabling import of model code vvv
-    if(1):
-        # new hack - functions depend on global var
-        model.runmodels=runmodels
-        # </mega_hack_runmodels>
-    # ^^^ hacks for enabling import of model code ^^^
-
-    # load geodata
+    # load geodata from file
     geodata = load_json_file(options_local['local_json_input'])
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
@@ -107,8 +107,8 @@ def retrieve_json_file(filename="gps_scored_route.json",key=False):
 
     # make sure file is updated
     # run_model_hook_legacy(runhook)
-    # run_model_hook will retrieve data by key, whether from file or db
-    return run_model_hook( key = key )
+    # get_model_results will retrieve data by key, whether from file or db
+    return get_model_results( key = key )
 
     # open file as json
     # TODO: call the new function 'def load_json_file'
@@ -198,8 +198,8 @@ if __name__ == "__main__":
             myfile.write(filepath_inferred + "\n")
     # explicitely test runhook - otherwise this is covered by retrieve_json_file
     if ( selftest == 2):
-        # run_model_hook(runhook)
-        run_model_hook_new()
+        # run_model_hook_legacy(runhook)
+        get_model_results()
     # intentionally fail for testing purposes by calling non-existing function
     if ( selftest == 3):
         print("intentionally fail by calling non-existing function")
