@@ -77,7 +77,7 @@ class Server(BaseHTTPRequestHandler):
                     print("----------------------\nkeystore\n-----------------")
                 # TODO: store data directly in: keystore[key_generated_static])
                 self.wfile.write(json.dumps(
-                    server_api_model.retrieve_json_file( "", key_generated_static )
+                    server_api_model.retrieve_json_results( key_generated_static )
                     ).encode())
             if ( quiet != 1):
                 print("you HAD one job - return the json! maybe you did? IDK")
@@ -144,7 +144,7 @@ class Server(BaseHTTPRequestHandler):
         # TODO: store message directly for future retrieval message
         #+ keystore[key_generated_static] = message
         #+ then modify accordingly:
-        #+ server_api_model.retrieve_json_file( "", data = keystore[key_generated_static])
+        #+ server_api_model.retrieve_json_results( data = keystore[key_generated_static])
         #+ 
         keystore[key_generated_static] = filepath_generated
         if(0):

@@ -94,10 +94,20 @@ def load_json_file(filename):
     return loadedjson
 
 
-# dump json to file for consumption by whatever else needs it
+# return json scored by model
 #+ default filename and key
-#+ TODO: this no longer relies on input file, for now just pass in nothing?
+def retrieve_json_results( key ):
+    # get_model_results will retrieve data by key, whether from file or db
+    return get_model_results( key = key )
+
+# wrapper to suppress 'filename' for any legacy calls
 def retrieve_json_file(filename="gps_scored_route.json",key=False):
+    return retrieve_json_results(key)
+
+    # LEGACY:
+    # dump json to file for consumption by whatever else needs it
+    #+ default filename and key
+    #+ TODO: this no longer relies on input file, for now just pass in nothing?
     #if ( quiet != 1):
     #    print("# save to file")
     # tmp:
@@ -187,7 +197,7 @@ if __name__ == "__main__":
         # used for GET
         #  note: would need to pass-in the key
         key_received = key_generated
-        message = retrieve_json_file( "" , key_generated)
+        message = retrieve_json_results( key_received )
         pprint.pprint(
                 message
                 )
