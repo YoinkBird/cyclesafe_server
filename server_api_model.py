@@ -39,11 +39,8 @@ def run_model_hook_legacy(hookpath):
 
 # call the model - not actually a hook any more. ha. ha. ha.
 def run_model_hook():
-#    calling old hook to troubleshoot issue with enablement in server
-    run_model_hook_legacy(runhook)
-    return
     # vvv temporary, just to test the import vvv
-    if ( 1 and __name__ == '__main__'):
+    if ( 1 ):
         # load data, featdef, etc
         # global options
         options = {
@@ -291,5 +288,6 @@ something wrong with server after converting runhook.
 * Verified that post works (self-test of server_api_model.py)
 * * ./t/cmds_dev.sh
 trying again
-
+issue: gps_scored_route.json not getting created, i.e. model scoring not running
+=> ugh. still had the "if __file__ eq 'main'" in the runhook code. baka.
 '''
