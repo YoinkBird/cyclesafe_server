@@ -206,15 +206,17 @@ if [[ ${step} == "launch" ]]; then
   # if 'port already in use', could just be from re-running
   python3 ./server.py ${urlPort} &
   server_pid=$!
-  echo $?
+  echo $server_pid
   # if server already running, the new PID just gets confusing
   #echo $! >> server_pid.txt
 
-  # let it spin up
-  sleep 1
+  #set -x
+  # let it spin up, otherwise port won't be bound in order to record it with lsof
+  sleep 5
 
   # how to kill the server
   lsof -i :${urlPort} | tee -a server_pid_lsof.txt
+  #set +x
 
   if [[ ${runall} -eq 1 ]]; then
     step="verify"
@@ -289,4 +291,5 @@ fi
 #-------------------------------------------------------------------------------- 
 # show any running servers
 #cat server_pid.txt
+echo "list of server pids:"
 cat server_pid_lsof.txt
