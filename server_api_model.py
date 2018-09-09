@@ -37,6 +37,7 @@ def run_model_hook_legacy(hookpath):
         print("no hook found")
 
 # call the model - not actually a hook any more. ha. ha. ha.
+# TODO: pass-in the geodata
 def run_model_hook():
     # get data-structures which contain configs to control execution
     options_local, runmodels = model.get_global_configs()
@@ -47,10 +48,12 @@ def run_model_hook():
         # </mega_hack_runmodels>
     # ^^^ hacks for enabling import of model code ^^^
 
+    # load geodata
+    geodata = load_json_file(options_local['local_json_input'])
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
     # score the input data (paths are hard-coded within 'model', yay)
-    response_json = model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, **options_local)
+    response_json = model.score_manual_generic_route(data, data_dummies, df_int_nonan, featdef, geodata, **options_local)
     return response_json
 
 # open json file
