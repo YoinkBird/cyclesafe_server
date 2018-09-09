@@ -106,12 +106,13 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   $dbecho rm -v -f ./res/gps_scored_route.json
   # server files
   $dbecho rm -v -f ./res/gps_input_route.json
-  # server files - keyed
-  $dbecho rm -v -f ./res/gps_input_route.json_*
-  # server files - keyed, list of them, need to process
+  # server files - keyed, list of them, need to process. for now just remove in the subsequent line
   if [[ -r ./list_gen_gps_input_route_json.txt ]]; then
     $dbecho cat ./list_gen_gps_input_route_json.txt
+    $dbecho rm -v -f ./list_gen_gps_input_route_json.txt
   fi
+  # server files - keyed
+  $dbecho rm -v -f ./res/gps_input_route.json_*
 
 
   # model links 
