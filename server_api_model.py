@@ -131,7 +131,11 @@ def save_json_file(response_json, filename, genkey=True):
     filepath=("%s/%s" % (resource_dir, filename))
     # generate key, update filepath accordingly
     key = gen_storage_key()
+    # if key desired or passed in 
     if( genkey ):
+        # if key passed in as int
+        if( isinstance( genkey , int ) ):
+            key = genkey
         filepath = gen_filepath_for_key( "%s/%s" % (resource_dir, filename) , key)
     # if ( quiet != 1):
     #     print("mock-response sending to : " + filepath)
@@ -170,6 +174,8 @@ if __name__ == "__main__":
         print("you have one job - save this string!")
         # used for POST
         key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json")
+        # briefly test hard-coding key for server
+        # key_generated, filepath_generated = save_json_file(mock_client_data, "gps_input_route.json", 100001)
         pprint.pprint(
                 (key_generated, filepath_generated)
                 )

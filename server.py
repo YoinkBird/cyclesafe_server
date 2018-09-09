@@ -18,6 +18,12 @@ quiet = 0
 # vvv used in "main", duplicated in server_api_model
 selftest = 0
 
+# kv of keys and file-paths
+#+ for now, just one filepath
+#key_generated_static = int()
+key_generated_static = 100001
+keystore = {}
+
 class Server(BaseHTTPRequestHandler):
     def _set_headers_common(self):
         self.send_response(200)
@@ -64,8 +70,14 @@ class Server(BaseHTTPRequestHandler):
             self._set_headers_json()
             self.end_headers()
             if ( parsed_path.path == "/rest/score/retrieve" ):
+                if(0):
+                    print("----------------------\nkeystore\n-----------------")
+                    print(type(key_generated_static) )
+                    print(json.dumps( (key_generated_static , keystore) ))
+                    print("----------------------\nkeystore\n-----------------")
+                # TODO: store data directly in: keystore[key_generated_static])
                 self.wfile.write(json.dumps(
-                    server_api_model.retrieve_json_file()
+                    server_api_model.retrieve_json_file( "", key_generated_static )
                     ).encode())
             if ( quiet != 1):
                 print("you HAD one job - return the json! maybe you did? IDK")
@@ -126,8 +138,20 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(message).encode())
         # store file
-        #+ TODO: implement keys, but for now: genkey = False 
-        server_api_model.save_json_file(message, "gps_input_route.json", False)
+        #+ TODO: implement keys, but for now: static key, i.e. only one possible. will get messy for multiple requests
+        key_generated, filepath_generated = server_api_model.save_json_file(message, "gps_input_route.json", 100001)
+        key_generated_static = key_generated
+        # TODO: store message directly for future retrieval message
+        #+ keystore[key_generated_static] = message
+        #+ then modify accordingly:
+        #+ server_api_model.retrieve_json_file( "", data = keystore[key_generated_static])
+        #+ 
+        keystore[key_generated_static] = filepath_generated
+        if(0):
+            print("----------------------\nkeystore\n-----------------")
+            print(type(key_generated_static) )
+            print(json.dumps( (key_generated_static , keystore) ))
+            print("----------------------\nkeystore\n-----------------")
         if ( quiet != 1):
             print("you HAD one job - store the json! maybe you did? IDK")
             print("------------------------- /POST -------------------------")
