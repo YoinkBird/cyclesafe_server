@@ -59,6 +59,7 @@ if [[ $# -gt 0 ]]; then
   runall=0
 fi
 
+# default starting point
 if [[ ${runall} -eq 1 ]]; then
   step="prepare";
 fi
@@ -162,13 +163,6 @@ if [[ ${step} == "prepare" ]]; then
     ls -lts ./${modelgendir}/output/gps_input_route.json # || echo "couldn't create symlink"
   fi
 
-  ### MOCK-ONLY: test-output from server to model : mock the map json route received from web
-  #+ link: ./res/gps_input_route_test.json -> ../${modelgendir}/t/route_json/gps_input_route_test.json
-  if [ ! -r  ./res/gps_input_route_test.json ]; then
-    ln -v -s ../${modelgendir}/t/route_json/gps_generic.json ./res/gps_input_route_test.json
-    ls -lts ./res/gps_input_route_test.json # || echo "couldn't create symlink"
-  fi
-
   ### input to server from model : the scored json route scored by the model
   #+ link: ./res/gps_scored_route.json -> ../${modelgendir}/output/gps_scored_route.json
   if [ ! -r ./${modelgendir}/output/gps_scored_route.json ]; then
@@ -176,9 +170,21 @@ if [[ ${step} == "prepare" ]]; then
     ls -lts ./res/gps_scored_route.json # || echo "couldn't create symlink"
   fi
 
+  # prepare testing data as well
+  step="testprep"
+fi
+
+if [[ ${step} == "testprep" ]]; then
+  ### MOCK-ONLY: test-output from server to model : mock the map json route received from web
+  #+ link: ./res/gps_input_route_test.json -> ../${modelgendir}/t/route_json/gps_input_route_test.json
+  if [ ! -r  ./res/gps_input_route_test.json ]; then
+    ln -v -s ../${modelgendir}/t/route_json/gps_generic.json ./res/gps_input_route_test.json
+    ls -lts ./res/gps_input_route_test.json # || echo "couldn't create symlink"
+  fi
   # show results
   step="prepverif"
 fi
+
 if [[ ${step} == "prepverif" ]]; then
   tree ./${modelgendir}/output/
   tree ./res
@@ -292,4 +298,6 @@ fi
 # show any running servers
 #cat server_pid.txt
 echo "list of server pids:"
-cat server_pid_lsof.txt
+if [[ -r server_pid_lsof.txt ]]; then
+  cat server_pid_lsof.txt
+fi
