@@ -53,9 +53,6 @@ set -e
 # TODO: 2. convert to use docker-compose
 
 
-# TODO: remove provisional exit once containerisation is complete
-exit 1
-
 curdir=$(dirname $0)
 cd $curdir
 
@@ -72,6 +69,19 @@ fi
 # if [[ ${step} == "launch" ]]; then
 #   step="prepare";
 # fi
+
+# build server container - provisional step to enable containerisation
+docker_user="yoinkbird"
+app_name_server="cs_server"
+image_tag_server="latest"
+image_name_server="${docker_user}/${app_name_server}"
+if [[ "${step}" == "build" ]]; then
+  docker build --tag ${image_tag_server} .
+fi
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
 
 modelgendir="modelgen";
 modelgenbranch="main";
