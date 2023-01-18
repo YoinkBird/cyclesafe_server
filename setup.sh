@@ -49,6 +49,13 @@ set -e
 # this preserves some semblance of good design even though all of this is just a big ole hack.
 # fortunately, this approach does mean that the server code already sees json generation as an abstraction, a deliberate design decision made so that this hacky "pseudo IPC" could be easily fixed in future without having to overcome strong bindings everywhere.
 
+# WORKLOG CONTAINERISATION
+# TODO: 1. convert this script to use vanilla Docker commands instead of current linux-based methodology
+# TODO: 2. convert to use docker-compose
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
 
 curdir=$(dirname $0)
 cd $curdir
