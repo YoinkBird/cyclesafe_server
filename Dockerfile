@@ -7,3 +7,5 @@ RUN pip3 install -r requirements.txt
 
 COPY . /app
 
+CMD ["./server.py", "8009"]
+ENTRYPOINT ["python3"]
