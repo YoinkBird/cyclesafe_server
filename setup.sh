@@ -70,16 +70,39 @@ fi
 #   step="prepare";
 # fi
 
-# build server container - provisional step to enable containerisation
+# image information
 docker_user="yoinkbird"
 app_name_server="cs_server"
 image_tag_server="latest"
 image_name_server="${docker_user}/${app_name_server}"
+app_name_modelgen="cs_modelgen"
+image_tag_modelgen="latest"
+image_name_modelgen="${docker_user}/${app_name_modelgen}:${image_tag_modelgen}"
+
+# build server image - provisional step to enable containerisation
 if [[ "${step}" == "build" ]]; then
   docker build --tag ${image_tag_server} .
 fi
 
 
+# pull - obtain modelgen artifact, provisional hacky methodology to locate either from registry or simply from localhost
+if [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
+  set +e
+  docker pull ${image_name_modelgen} > /dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    echo "WARN: could not pull ${image_name_modelgen}"
+    echo "DEV: checking whether image exists locally"
+  fi
+  # DEV: redundant if already pulled, but useful if only developing locally
+  docker inspect "${image_name_modelgen}" > /dev/null 2>&1
+  if [[ $? -ne 0 ]]; then
+    echo "FATAL: image ${image_name_modelgen} cannot be found"
+    exit 1
+  else
+    echo "INFO: obtained image ${image_name_modelgen}"
+  fi
+  set -e
+fi
 # TODO: remove provisional exit once containerisation is complete
 exit 1
 
