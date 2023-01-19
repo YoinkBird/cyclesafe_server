@@ -276,31 +276,28 @@ fi
 
 if [[ ${step} == "verify" ]]; then
 
-  # TODO: remove provisional exit once containerisation is complete
-  exit 1
-
   #-------------------------------------------------------------------------------- 
   echo "VERIFY POST:"
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
-  set -x
-  # hide output, it floods the screen and makes visual inspection difficult
-  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json -o /dev/null
+  curl --fail-early -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
 
-  set +x
   #-------------------------------------------------------------------------------- 
+  echo ""
   echo "VERIFY GET:"
   # mock client map-ui - retrieve json
-  set -x
-  curl -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
+  curl --fail-early -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
   set +x
 
   #-------------------------------------------------------------------------------- 
+  echo ""
   echo "VERIFY GET HTML:"
   # mock client map-ui - retrieve json
-  set -x
-  curl -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
-  set +x
+  curl --fail-early -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+
+  #-------------------------------------------------------------------------------- 
+  echo ""
+  echo "END VERIFY"
 
   if [[ ${runall} -eq 1 ]]; then
     step="browser"
@@ -342,7 +339,11 @@ fi
 #-------------------------------------------------------------------------------- 
 # show any running servers
 #cat server_pid.txt
-echo "list of server pids:"
+echo "list of server ids:"
 if [[ -r server_pid_lsof.txt ]]; then
-  cat server_pid_lsof.txt
+  cat server_pid_lsof.txt || echo "... none found"
 fi
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
