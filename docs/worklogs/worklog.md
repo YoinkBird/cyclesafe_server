@@ -74,7 +74,7 @@ ln: failed to create symbolic link './res/gps_scored_route.json': File exists
 
 # FUTURE:
 
-Optimise Docker layer caching for python pip
+[x] Optimise Docker layer caching for python pip
 
 # Phase 4
 
