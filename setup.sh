@@ -212,7 +212,8 @@ if [[ ${step} == "launch" ]]; then
 
   # startup
   # if 'docker: Error response from daemon: driver failed programming external connectivity on endpoint cs_server_8009 (64c7...): Bind for 0.0.0.0:8009 failed: port is already allocated.', could just be from re-running
-  docker run -d -p ${urlPort}:8009 --name "cs_server_${urlPort}" ${image_name_server}
+  server_container_name="cs_server_${urlPort}"
+  docker run -d -p ${urlPort}:8009 --name "${server_container_name}" ${image_name_server}
   # was already useless # server_pid=$!
   echo $?
   # if server already running, the new PID just gets confusing
@@ -222,18 +223,18 @@ if [[ ${step} == "launch" ]]; then
   sleep 1
 
   # how to kill the server
-  lsof -i :${urlPort} | tee -a server_pid_lsof.txt
+  echo "${server_container_name}" >> server_pid_lsof.txt
 
   if [[ ${runall} -eq 1 ]]; then
     step="verify"
   fi
 fi
 
-
-# TODO: remove provisional exit once containerisation is complete
-exit 1
-
 if [[ ${step} == "verify" ]]; then
+
+  # TODO: remove provisional exit once containerisation is complete
+  exit 1
+
   #-------------------------------------------------------------------------------- 
   echo "VERIFY POST:"
   # mock client map-ui - upload json
@@ -268,16 +269,12 @@ fi
 if [[ ${step} == "kill" ]]; then
   echo "stopping server via kill"
   killed=0
-  for pid in $(cat server_pid_lsof.txt  | awk '{printf "%s\n", $2}' | perl -nle 'm|(\d+)| && print $1'); do
+  for container_name in $(cat server_pid_lsof.txt); do
     set +e
-    # UID        PID  PPID  C STIME TTY      STAT   TIME CMD
-    # myusern+ 23837  9337  0 17:09 pts/3    S      0:00 python3 ./server.py <urlPort>
-    ps -fww $pid | grep "${pid}.*python3.*server\.py.*${urlPort}";
+    docker container kill "${container_name}"
+    docker container rm "${container_name}"
     rc=$?
     if [[ $rc -eq 0 ]]; then
-      set -x
-      kill -s HUP ${pid}
-      set +x
       killed=1
     fi
     set -e

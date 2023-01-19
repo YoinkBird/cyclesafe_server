@@ -69,11 +69,14 @@ ln: failed to create symbolic link './res/gps_scored_route.json': File exists
 ```
 
 
-### step: launch
+### step: launch+kill
+
+need ability to to launch and end server process
 
 ### PARTIAL SUCCESS
 
 Container runs....
+... and can be killed
 
 
 # FUTURE:
