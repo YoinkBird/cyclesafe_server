@@ -193,22 +193,10 @@ fi
 if [[ "${step}" == "build" ]]; then
   docker build --tag ${image_name_server} .
 
-  # TODO: temp command to verify that container works
-  if [[ 0 -eq 1 ]]; then
-    # TODO: move to proper location
-    docker run -p 8009:8009 ${image_name_server}
-  fi
-
   if [[ ${runall} -eq 1 ]]; then
     step="launch"
   fi
 fi
-
-
-
-# TODO: remove provisional exit once containerisation is complete
-exit 1
-
 
 set -u
 urlAddress="http://localhost"
@@ -221,10 +209,11 @@ urlJsonServerRestGet="${urlJsonServerRest}""/""retrieve";
 
 if [[ ${step} == "launch" ]]; then
 
+
   # startup
-  # if 'port already in use', could just be from re-running
-  python3 ./server.py ${urlPort} &
-  server_pid=$!
+  # if 'docker: Error response from daemon: driver failed programming external connectivity on endpoint cs_server_8009 (64c7...): Bind for 0.0.0.0:8009 failed: port is already allocated.', could just be from re-running
+  docker run -d -p ${urlPort}:8009 --name "cs_server_${urlPort}" ${image_name_server}
+  # was already useless # server_pid=$!
   echo $?
   # if server already running, the new PID just gets confusing
   #echo $! >> server_pid.txt
@@ -239,6 +228,10 @@ if [[ ${step} == "launch" ]]; then
     step="verify"
   fi
 fi
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
 
 if [[ ${step} == "verify" ]]; then
   #-------------------------------------------------------------------------------- 
