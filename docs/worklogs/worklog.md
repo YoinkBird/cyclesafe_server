@@ -24,6 +24,12 @@ Note: not using Makefile as much since build management is done via setup.sh ; c
 
 convert orchestration to use vanilla docker commands
   
+  # TODO: for local dev, implement local registry and adjust variables accordingly: https://www.docker.com/blog/how-to-use-your-own-registry-2/
+  # $ docker run -d -p 5000:5000 --name registry registry:latest
+  # $ docker run -d -p 5000:5000 --name registry registry:latest
+  # $ docker tag yoinkbird/cs_modelgen localhost:5000/yoinkbird/cs_modelgen
+  # $ docker push localhost:5000/yoinkbird/cs_modelgen
+
 
 # Phase 4
 
