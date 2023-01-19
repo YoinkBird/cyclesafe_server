@@ -62,6 +62,14 @@ ln: failed to create symbolic link 'modelgen/server/..': File exists
 ln: failed to create symbolic link './res/gps_scored_route.json': File exists
 ```
 
+
+### step: launch
+
+### PARTIAL SUCCESS
+
+Container runs....
+
+
 # FUTURE:
 
 ```bash
