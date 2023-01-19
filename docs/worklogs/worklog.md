@@ -36,6 +36,28 @@ convert orchestration to use vanilla docker commands
   # $ docker tag yoinkbird/cs_modelgen localhost:5000/yoinkbird/cs_modelgen
   # $ docker push localhost:5000/yoinkbird/cs_modelgen
 
+## Challenge:
+
+server.py runs model.py via the "runhook"; if both are containerised, without further changes, we would need a docker-in-docker setup to run it.
+
+Solution:
+Workaround For now, build modelgen and server in one mono-image,
+work on moving the pseudo-IPC files to a volume.
+
+Then break up the "runhook" by modifying modelgen to monitor filechanges and have the server simply touch these files instead of running the modelgen directly.
+
+Finally, split up the mono-image into one for server, one for modelgen, as originally intended.
+
+
+# FUTURE:
+
+```bash
+# TODO: containerise: convert the steps for clean,reset,prepare to use docker volume: https://docs.docker.com/storage/volumes/
+# remove the generated files and links
+
+# TODO: container_volume_name="cs_pseudo_ipc"
+# TODO: $dbecho docker volume rm "${container_volume_name}"
+```
 
 # Phase 4
 
