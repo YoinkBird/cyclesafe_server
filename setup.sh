@@ -63,7 +63,7 @@ if [[ $# -gt 0 ]]; then
 fi
 
 if [[ ${runall} -eq 1 ]]; then
-  step="prepare";
+  step="build";
 fi
 # # backwards compatibility - launch used to include compare
 # if [[ ${step} == "launch" ]]; then
@@ -79,14 +79,11 @@ app_name_modelgen="cs_modelgen"
 container_tag_modelgen="latest"
 container_name_modelgen="${docker_user}/${app_name_modelgen}:${container_tag_modelgen}"
 
-# build server container - provisional step to enable containerisation
-if [[ "${step}" == "build" ]]; then
-  docker build --tag ${container_tag_server} .
-fi
+# TODO: build server container - provisional step to enable containerisation
+# ...
 
-
-# pull - obtain modelgen artifact, provisional hacky methodology to locate either from registry or simply from localhost
-if [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
+# TODO: not working yet. pull - obtain modelgen artifact, provisional hacky methodology to locate either from registry or simply from localhost
+if [[ 1 -eq 0 ]] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   set +e
   docker pull ${container_name_modelgen} > /dev/null 2>&1
   if [[ $? -ne 0 ]]; then
@@ -103,11 +100,9 @@ if [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   fi
   set -e
 fi
-# TODO: remove provisional exit once containerisation is complete
-exit 1
 
 modelgendir="modelgen";
-modelgenbranch="master";
+modelgenbranch="containerize";
 # check whether modelgen repo exists, clone as needed unless during the cleanup steps (clean and reset)
 if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   # get the host of the repo
@@ -135,6 +130,26 @@ if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} 
     fi
   fi
 fi
+
+# build server container - provisional step to enable containerisation
+if [[ "${step}" == "build" ]]; then
+  docker build --tag ${container_tag_server} .
+
+  # TODO: temp command to verify that container works
+  if [[ 0 -eq 1 ]]; then
+    # TODO: move to proper location
+    docker run -p 8009:8009 ${container_tag_server}
+  fi
+
+  if [[ ${runall} -eq 1 ]]; then
+    step="prepare"
+  fi
+fi
+
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
 
 # remove the generated files and links
 if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
