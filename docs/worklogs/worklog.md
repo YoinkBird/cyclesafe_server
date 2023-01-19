@@ -84,6 +84,19 @@ Container runs....
 
 visual verification works, updated curl options to be more strict and output to be more clear
 
+## step: runall
+
+./setup.sh kill
+./setup.sh clean
+
+git clean -xdf
+
+### SUCCESS
+
+./setup.sh
+
+Runs, browser launches without errors from server
+
 
 # FUTURE:
 
