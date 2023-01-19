@@ -62,6 +62,10 @@ Modify orchestration setup.sh and Dockerfile to install dependencies needed for 
 # TODO: $dbecho docker volume rm "${container_volume_name}"
 ```
 
+# FUTURE:
+
+Optimise Docker layer caching for python pip
+
 # Phase 4
 
 convert orchestration to docker-compose, for now.
