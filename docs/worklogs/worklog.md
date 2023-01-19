@@ -78,6 +78,12 @@ need ability to to launch and end server process
 Container runs....
 ... and can be killed
 
+## step: verify
+
+### PARTIAL SUCCESS
+
+visual verification works, updated curl options to be more strict and output to be more clear
+
 
 # FUTURE:
 

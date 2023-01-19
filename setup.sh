@@ -232,24 +232,27 @@ fi
 
 if [[ ${step} == "verify" ]]; then
 
-  # TODO: remove provisional exit once containerisation is complete
-  exit 1
-
   #-------------------------------------------------------------------------------- 
   echo "VERIFY POST:"
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
-  curl -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
+  curl --fail-early -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
 
   #-------------------------------------------------------------------------------- 
+  echo ""
   echo "VERIFY GET:"
   # mock client map-ui - retrieve json
-  curl -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
+  curl --fail-early -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
 
   #-------------------------------------------------------------------------------- 
+  echo ""
   echo "VERIFY GET HTML:"
   # mock client map-ui - retrieve json
-  curl -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+  curl --fail-early -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+
+  #-------------------------------------------------------------------------------- 
+  echo ""
+  echo "END VERIFY"
 
   if [[ ${runall} -eq 1 ]]; then
     step="browser"
@@ -291,4 +294,11 @@ fi
 #-------------------------------------------------------------------------------- 
 # show any running servers
 #cat server_pid.txt
-cat server_pid_lsof.txt
+echo "remaining server ids: "
+cat server_pid_lsof.txt || echo "... none found"
+
+
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
