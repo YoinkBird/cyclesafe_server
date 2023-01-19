@@ -51,6 +51,16 @@ Modify orchestration setup.sh and Dockerfile to install dependencies needed for 
 * move docker build step after clone of modelgen (to copy it in)
 * pip install modelgen requirements.txt
 
+## step: prepare
+For "pseudo IPC", move container build after all symlinks are created
+
+**Caveat**:
+Have to run `./setup.sh clean` to avoid:
+```bash
+$ ./setup.sh
+ln: failed to create symbolic link 'modelgen/server/..': File exists
+ln: failed to create symbolic link './res/gps_scored_route.json': File exists
+```
 
 # FUTURE:
 

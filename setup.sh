@@ -63,7 +63,7 @@ if [[ $# -gt 0 ]]; then
 fi
 
 if [[ ${runall} -eq 1 ]]; then
-  step="build";
+  step="prepare";
 fi
 # # backwards compatibility - launch used to include compare
 # if [[ ${step} == "launch" ]]; then
@@ -131,26 +131,6 @@ if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} 
   fi
 fi
 
-# build server container - provisional step to enable containerisation
-if [[ "${step}" == "build" ]]; then
-  docker build --tag ${container_name_server} .
-
-  # TODO: temp command to verify that container works
-  if [[ 0 -eq 1 ]]; then
-    # TODO: move to proper location
-    docker run -p 8009:8009 ${container_name_server}
-  fi
-
-  if [[ ${runall} -eq 1 ]]; then
-    step="prepare"
-  fi
-fi
-
-
-
-# TODO: remove provisional exit once containerisation is complete
-exit 1
-
 # remove the generated files and links
 if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   dbecho="echo"
@@ -205,9 +185,30 @@ if [[ ${step} == "prepare" ]]; then
   fi
 
   if [[ ${runall} -eq 1 ]]; then
+    step="build"
+  fi
+fi
+
+# build server container - provisional step to enable containerisation
+if [[ "${step}" == "build" ]]; then
+  docker build --tag ${container_name_server} .
+
+  # TODO: temp command to verify that container works
+  if [[ 0 -eq 1 ]]; then
+    # TODO: move to proper location
+    docker run -p 8009:8009 ${container_name_server}
+  fi
+
+  if [[ ${runall} -eq 1 ]]; then
     step="launch"
   fi
 fi
+
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
+
 
 set -u
 urlAddress="http://localhost"
