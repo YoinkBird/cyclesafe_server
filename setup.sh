@@ -133,12 +133,12 @@ fi
 
 # build server container - provisional step to enable containerisation
 if [[ "${step}" == "build" ]]; then
-  docker build --tag ${container_tag_server} .
+  docker build --tag ${container_name_server} .
 
   # TODO: temp command to verify that container works
   if [[ 0 -eq 1 ]]; then
     # TODO: move to proper location
-    docker run -p 8009:8009 ${container_tag_server}
+    docker run -p 8009:8009 ${container_name_server}
   fi
 
   if [[ ${runall} -eq 1 ]]; then
