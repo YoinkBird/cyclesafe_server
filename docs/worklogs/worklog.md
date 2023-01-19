@@ -16,6 +16,10 @@ containerize model generation
 
 containerize server setup
 
+Simple, since server is "just" pure python server, all batteries included and no frameworks
+
+Note: not using Makefile as much since build management is done via setup.sh ; could convert setup.sh to Makefile though
+
 # Phase 3
 
 convert orchestration to use vanilla docker commands
