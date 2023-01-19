@@ -247,12 +247,14 @@ if [[ ${step} == "verify" ]]; then
 fi
 
 if [[ ${step} == "browser" ]]; then
+  # browser_and_args="chromium-browser --incognito"
+  browser_and_args="firefox --private-window"
   #-------------------------------------------------------------------------------- 
   # mock client map-ui - view json in browser
-  chromium-browser --incognito ${urlJsonServerRestGet}
+  ${browser_and_args[@]} ${urlJsonServerRestGet}
   # how about some other things?
   # TODO: convert to host-specific call, i.e. http://localhost:8009/directions.html
-  chromium-browser --incognito ${urlJsonServer}/directions.html # http://localhost:8009/directions_markers.html
+  ${browser_and_args[@]} ${urlJsonServer}/directions.html # http://localhost:8009/directions_markers.html
 fi
 
 # stop the server. naming this step kill because it's using 'kill' instead of cleanly shutting down server
