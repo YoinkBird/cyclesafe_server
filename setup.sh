@@ -299,9 +299,3 @@ fi
 #cat server_pid.txt
 echo "remaining server ids: "
 cat server_pid_lsof.txt || echo "... none found"
-
-
-
-
-# TODO: remove provisional exit once containerisation is complete
-exit 1
