@@ -49,6 +49,25 @@ Then break up the "runhook" by modifying modelgen to monitor filechanges and hav
 Finally, split up the mono-image into one for server, one for modelgen, as originally intended.
 
 
+## mono-image
+
+Build "mono image" as one image containing 2 repos, essentially just converting the philosophy of setup.sh to run in a container.
+
+Modify orchestration setup.sh and Dockerfile to install dependencies needed for modelgen
+* move docker build step after clone of modelgen (to copy it in)
+* pip install modelgen requirements.txt
+
+## step: prepare
+For "pseudo IPC", move container build after all symlinks are created
+
+**Caveat**:
+Have to run `./setup.sh clean` to avoid:
+```bash
+$ ./setup.sh
+ln: failed to create symbolic link 'modelgen/server/..': File exists
+ln: failed to create symbolic link './res/gps_scored_route.json': File exists
+```
+
 # FUTURE:
 
 ```bash

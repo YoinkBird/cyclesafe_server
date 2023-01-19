@@ -79,14 +79,11 @@ app_name_modelgen="cs_modelgen"
 image_tag_modelgen="latest"
 image_name_modelgen="${docker_user}/${app_name_modelgen}:${image_tag_modelgen}"
 
-# build server image - provisional step to enable containerisation
-if [[ "${step}" == "build" ]]; then
-  docker build --tag ${image_tag_server} .
-fi
+# TODO: build server image - provisional step to enable containerisation
+# ...
 
-
-# pull - obtain modelgen artifact, provisional hacky methodology to locate either from registry or simply from localhost
-if [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
+# TODO: not working yet. pull - obtain modelgen artifact, provisional hacky methodology to locate either from registry or simply from localhost
+if [[ 1 -eq 0 ]] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   set +e
   docker pull ${image_name_modelgen} > /dev/null 2>&1
   if [[ $? -ne 0 ]]; then
@@ -103,11 +100,9 @@ if [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   fi
   set -e
 fi
-# TODO: remove provisional exit once containerisation is complete
-exit 1
 
 modelgendir="modelgen";
-modelgenbranch="main";
+modelgenbranch="containerize";
 # check whether modelgen repo exists, clone as needed unless during the cleanup steps (clean and reset)
 if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   # get the host of the repo
@@ -190,9 +185,30 @@ if [[ ${step} == "prepare" ]]; then
   fi
 
   if [[ ${runall} -eq 1 ]]; then
+    step="build"
+  fi
+fi
+
+# build server image - provisional step to enable containerisation
+if [[ "${step}" == "build" ]]; then
+  docker build --tag ${image_name_server} .
+
+  # TODO: temp command to verify that container works
+  if [[ 0 -eq 1 ]]; then
+    # TODO: move to proper location
+    docker run -p 8009:8009 ${image_name_server}
+  fi
+
+  if [[ ${runall} -eq 1 ]]; then
     step="launch"
   fi
 fi
+
+
+
+# TODO: remove provisional exit once containerisation is complete
+exit 1
+
 
 set -u
 urlAddress="http://localhost"
