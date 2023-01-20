@@ -1,65 +1,88 @@
-# Minimal Server for interacting with model-generation backend code
-## Quick Start
+# Cycle Safe Server and UI for Model Generation
+
+Server, UI, Test Framework, and Orchestration for the 
+ [Probabilistic Routing-Based Injury Avoidance Navigation Framework for Pedalcyclists](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md) Project.
+
+This repo contains the navigation frontend, scoring server, and orchestration to run and validate the navigation framework.
+
+## Usage
+### Quick Start
 
 Clone this repo.
 
 <pre>
-# prepare environment (clone and prep modelgen repo, run server, test server, launch browser
+# prepare environment (clone and prep modelgen repo, run server, test server, launch browser)
 ./setup.sh
-
-# simply run server
-./setup.sh prepare
-./setup.sh launch
 </pre>
 
+# Architecture
 
-## Documentation
+The frontend and backend interactions are documented in the [Architecture overview documentation](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md#architecture), where the [Data Formats and Modeling Application](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md#data-formats) are managed by the 
+[Model Generation Repo](https://github.com/YoinkBird/cyclesafe).
 
-Brief overview of files and functionality.  
-For comprehensive overview of implementation, see "setup.sh".  
+# Contributing
 
-setup.sh
+## Caveat
+
+This is a quick-and-dirty prototype; speed of implementation was chosen over best practices and proper frameworks. Some of the required improvements are tracked via the GH issues for each project; many are still in the author's head, waiting to get documented in their spare time :-)
+
+In particular, the orchestration should at least be done via docker-compose, the server should be implemented at least as flask (widely understood and supported), and the frontend should not be vanilla JS (no matter how exciting that is).
+
+## Brief overview of files and functionality
+
+### Orchestration
+[./setup.sh](./setup.sh) ; see also the section (#Orchestration)[#Orchestration].
 * prepares environment
 * launches server
 * sets up visual verification
 
-server.py
-* the actual server code
+### Backend
+[./server.py](./server.py)
+* the actual server code, written using [lib/http/server](https://docs.python.org/3/library/http.server.html)
 * POST: accepts json, passes to model-generation code
 * GET:  returns scored json, retreieved from model-generation code
 
 
-directions.html
-* rudimentary webpage implementing google maps API
+### Frontend
+For a visual overview, see the `User Interface` section ["User Interface" section in the system design documentation.](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md#user-application).
+
+[./directions.html](./directions.html)
+* rudimentary webpage using Vanilla JS to implement google maps API
 * displays scored routes based on model predictions
 * sends direction json to server
 * receives scored json from server
 * displays original directions with score as mapmarker
+* **Caveat**: currently non-functional due to outdated Google Maps API Key; easy to fix, but it doesn't block testing while modernising the rest of the application so it's a low priority.
+* **Caveat**: chock full of [JavaScript sins](https://github.com/YoinkBird/cyclesafe_server/blob/60c8ffaea646c9f680458f03c5ddef7f055a65df/client.html#L106), but good enough for a rapid prototype.
 
-# Original Server Documentation
-A minimal HTTP server in python. It sends a JSON Hello World for GET requests, and echoes back JSON for POST requests.
+## Orchestration
 
-```
-python server.py 8009
-Starting httpd on port 8009...
-```
+**Caveat**: Orchestration is done in a pure Linux fashion, and does not use any modern encapsulation techniques (i.e. no VM, Container, etc). Fixing this is an active WIP.
 
-```
-curl http://localhost:8009
-{"received": "ok", "hello": "world"}
-```
+**Process Lifecycle**
 
-```
-curl --data "{\"this\":\"is a test\"}" --header "Content-Type: application/json" http://localhost:8009
-{"this": "is a test", "received": "ok"}
-```
+The script manually manages the server lifecycle by [tracking PIDs](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L171) and then [reaping them for shutdown](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L222)
+ and [closing sockets](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L180).
 
-Adapted from [this Gist](https://gist.github.com/bradmontgomery/2219997), with the addition of code for reading the request body taken from [this article](http://mafayyaz.wordpress.com/2013/02/08/writing-simple-http-server-in-python-with-rest-and-json/).
+Edge cases: Sometimes, [manual steps](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L121) are still required to avoid missing any edge cases which containerized solutions already manage.
 
-Please be careful when using a server like this on production environments, because it lacks many important features (threading to name one). You can consult [the python documentation about BaseHTTPServer](https://docs.python.org/2/library/basehttpserver.html) to learn something useful to improve it.
+**Dependency Management**
 
-If you are on Ubuntu, you can install this code as a service with an init script (hopefully, with some modifications that make it actually do something useful). Just modify the include `server.conf` to suit your needs (possibly renaming it and redirecting output to some log files instead of `/dev/null`), and copy it into `/etc/init/`. You can then start/stop/restart the server with the usual `service` command:
+The [model management backend is downloaded from a separate repository](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L89).
 
-```
-sudo service server start
-```
+The [file generation preparation](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L130) relies on manipulating files on local disk; this was a quick hack to keep the server code decoupled from the model management code.
+
+The [file generation cleanup](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L100) ensures that old files are not used by mistake; this is perfect for a Jenkins-based CI/CD but is not long for this world.
+
+### Testing
+
+Verification is implemented as an [interface test](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L187); this is implemented using `curl` and json files defining requests and expected responses (similar to [expect testing](https://en.wikipedia.org/wiki/Expect); this is a quick and dirty way to verify system functionality at a high level; see rationale at the end of this section.
+
+UI Testing is done manually by [launching a web browser](https://github.com/YoinkBird/cyclesafe_server/blob/042205c4797c1c8450879f8659ad4384589811ef/setup.sh#L212) and manually manipulating the fields; due to prototyping time constraints this was not automated, but could be using cypress or selenium.
+
+Rationale: During development, the trade-off was made to rely on integration testing to prevent backsliding, with unit tests to be added later where possible. This is both due to the nature of testing ML models (results aren't always predictable) and the prototype nature of the project (i.e. most of the code is expected to be refactored anyway).
+
+## Related Projects
+
+Original server code adopted from https://gist.github.com/nitaku/10d0662536f37a087e1b
+, because the server needed only to be a shim around the model to quickly get a working prototype, and for the minimal routes required it was deemed faster to use vanilla HTTP instead of learning a new framework.
