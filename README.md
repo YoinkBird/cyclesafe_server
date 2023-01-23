@@ -1,7 +1,7 @@
 # Cycle Safe Server and UI for Model Generation
 
 Server, UI, Test Framework, and Orchestration for the 
- [Probabilistic Routing-Based Injury Avoidance Navigation Framework for Pedalcyclists](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md) Project.
+ [Probabilistic Routing-Based Injury Avoidance Navigation Framework for Pedalcyclists](https://github.com/YoinkBird/cyclesafe/blob/master/doc/report/report.md) Project.
 
 This repo contains the navigation frontend, scoring server, and orchestration to run and validate the navigation framework.
 
