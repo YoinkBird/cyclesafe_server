@@ -1,10 +1,9 @@
 # Goal
 
 1. Containerise cyclesafe_server and modelgen,
-2. Replace orchestration bash+linux setup.sh orchestration with 
-3. docker fundamentals.
-4. Then implement orchestration using docker-compose to (mostly) replace setup.sh.
-5. Continue to implement orchestration using k8s+k3d
+2. Replace orchestration bash+linux setup.sh orchestration with docker fundamentals.
+3. Then implement orchestration using docker-compose to (mostly) replace setup.sh.
+4. Continue to implement orchestration using k8s+k3d
 
 # Phase 1
 
@@ -96,6 +95,15 @@ git clean -xdf
 ./setup.sh
 
 Runs, browser launches without errors from server
+
+## Iterate: Move hacks from setup.sh into Docker
+
+### step: prepare, part 2
+
+Move "pseudo IPC" into Docker, no longer using setup.sh to manage.
+
+Break the "subdirectory" philosophy:
+* implement parallel hierarchy in Docker
 
 
 # FUTURE:
