@@ -22,7 +22,7 @@ In particular, the orchestration should at least be done via docker-compose, the
 
 
 ### Frontend
-For a visual overview, see the `User Interface` section ["User Interface" section in the system design documentation.](https://github.com/YoinkBird/cyclesafe/blob/master/docs/report/report.md#user-application).
+For a visual overview, see the `User Interface` section ["User Interface" section in the system design documentation.](https://github.com/YoinkBird/cyclesafe/blob/613f6dcc4a95d4394546f2ba83d20263461a02b4/docs/report/report.md#user-application).
 
 [./directions.html](./directions.html)
 * rudimentary webpage using Vanilla JS to implement google maps API
