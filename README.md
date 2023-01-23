@@ -17,7 +17,7 @@ Clone this repo.
 
 # Architecture
 
-The frontend and backend interactions are documented in the [Architecture overview documentation](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md#architecture), where the [Data Formats and Modeling Application](https://github.com/YoinkBird/cyclesafe/blob/master/report/report.md#data-formats) are managed by the 
+The frontend and backend interactions are documented in the [Architecture overview documentation](https://github.com/YoinkBird/cyclesafe/blob/report/report/report.md#architecture), where the [Data Formats and Modeling Application](https://github.com/YoinkBird/cyclesafe/blob/master/doc/report/report.md#data-formats) are managed by the 
 [Model Generation Repo](https://github.com/YoinkBird/cyclesafe).
 
 # Contributing
