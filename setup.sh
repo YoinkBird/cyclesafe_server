@@ -69,7 +69,7 @@ fi
 # fi
 
 modelgendir="modelgen";
-modelgenbranch="master";
+modelgenbranch="main";
 # check whether modelgen repo exists, clone as needed unless during the cleanup steps (clean and reset)
 if [ ! -e "${modelgendir}/.git/config" ] && [ ${step} != "clean" ] && [ ${step} != "reset" ] ; then
   # get the host of the repo
