@@ -156,6 +156,8 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   # server files - keyed
   $dbecho rm -v -f ./res/gps_input_route.json_*
 
+  # entry point from model to server for links
+  $dbecho rm -v -f ./${modelgendir}/server
 
   # model links 
   $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
