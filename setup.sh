@@ -279,7 +279,8 @@ if [[ ${step} == "verify" ]]; then
   echo ""
   echo "END VERIFY"
 
-  if [[ ${runall} -eq 1 ]]; then
+  # disable for now during non-GUI testing
+  if [[ 0 -eq 1 ]] && [[ ${runall} -eq 1 ]]; then
     step="browser"
   fi
 fi
