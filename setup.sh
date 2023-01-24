@@ -69,12 +69,8 @@ if [[ $# -gt 0 ]]; then
 fi
 
 if [[ ${runall} -eq 1 ]]; then
-  step="prepare";
+  step="build";
 fi
-# # backwards compatibility - launch used to include compare
-# if [[ ${step} == "launch" ]]; then
-#   step="prepare";
-# fi
 
 # image information
 docker_user="yoinkbird"
@@ -167,33 +163,6 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
     pwd
     git clean -xdn
     cd ..
-  fi
-fi
-
-if [[ ${step} == "prepare" ]]; then
-  # single entry point from model to server, i.e. links go through <modeldir>/server
-  #+ ./${modelgendir}/server -> ../
-  set +e
-  ln -s ../ ${modelgendir}/server
-  set -e
-  ## files from model:
-  #// ln should be safe, haven't seen server overwrite the files
-  ### output from server to model : the map json route received from web
-  #+ link: ./${modelgendir}/output -> ../'server'/res/gps_input_route.json ( using 'server' symlink)
-  #+ link: ./${modelgendir}/output -> ../../res/gps_input_route.json       ( without 'server' symlink)
-  if [ ! -r  ./res/gps_input_route.json ]; then
-    ln -v -s ../server/res/gps_input_route.json ./${modelgendir}/output/ # || echo "couldn't create symlink"
-    ls -lts ./${modelgendir}/output/gps_input_route.json # || echo "couldn't create symlink"
-  fi
-  ### input to server from model : the scored json route scored by the model
-  #+ link: ./res/gps_scored_route.json -> ../${modelgendir}/output/gps_scored_route.json
-  if [ ! -r ./${modelgendir}/output/gps_scored_route.json ]; then
-    ln -v -s ../${modelgendir}/output/gps_scored_route.json ./res/ # || echo "couldn't create symlink"
-    ls -lts ./res/gps_scored_route.json # || echo "couldn't create symlink"
-  fi
-
-  if [[ ${runall} -eq 1 ]]; then
-    step="build"
   fi
 fi
 
