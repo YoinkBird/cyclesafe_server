@@ -219,6 +219,8 @@ $ bash -cxe '(exit 9) && (exit 1) || (exit 20); echo "END: $?"'; echo $?
 
 Update curl-based interface tests to verify response instead of just relying on return code, since server doesn't always return appropriate HTTP error codes for internal errors.
 
+## Iterate, Round 3: Convert Pseudo-IPC to use image dir/container volume
+
 * configure links to point to Docker volume to enable easy removal
 
 # FUTURE:
