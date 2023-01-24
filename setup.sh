@@ -183,13 +183,13 @@ urlJsonServer="${urlAddress}:${urlPort}" # window.location.origin + '/rest/score
 urlJsonServerRest="${urlJsonServer}/${jsonEndpoint}" # window.location.origin + '/rest/score'
 urlJsonServerRestPost="${urlJsonServerRest}""/""upload";
 urlJsonServerRestGet="${urlJsonServerRest}""/""retrieve";
+server_container_name="cs_server_${urlPort}"
 
 if [[ ${step} == "launch" ]]; then
 
 
   # startup
   # if 'docker: Error response from daemon: driver failed programming external connectivity on endpoint cs_server_8009 (64c7...): Bind for 0.0.0.0:8009 failed: port is already allocated.', could just be from re-running
-  server_container_name="cs_server_${urlPort}"
   docker run -d -p ${urlPort}:8009 --name "${server_container_name}" ${image_name_server}
   # was already useless # server_pid=$!
   echo $?
@@ -214,6 +214,15 @@ if [[ ${step} == "verify" ]]; then
   # mock client map-ui - upload json
   #+ src: https://stackoverflow.com/a/7173011
   curl --fail-early -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
+
+  #-------------------------------------------------------------------------------- 
+  # HACK
+  echo "HACK: VERIFY SUCCESFFUL ORCHESTRATION USING GET"
+  # test plan: "orchestration testing" - check for known-errors resulting from incorrect configuration (i.e. if orchestration worked, this will pass).
+  # DEPENDS ON a successful "POST"+"GET" to "flush out" issues with the hacky pseudo-IPC; this test relies on the previous test's POST to avoid potential side effects (no ROI in flushing that out...), but independently runs GET (next test with GET serves a different purpose)
+  curl -s "${urlJsonServerRestGet}" > /dev/null 2>&1
+  # Note: 'grep' will return zero if there is a match; '&& false' ensures that the successful grep $?==0 actually returns false and gets caught by 'set -e'. If there is no match, i.e. logs are clean, the unsuccessful grep $?==1 will be "suppressed" by the '&&' operation and not be treated as a failed command
+  docker container logs "${server_container_name}" 2>&1 | (! grep "prepare_json.sh:\|python3: can't open file")
 
   #-------------------------------------------------------------------------------- 
   echo ""
