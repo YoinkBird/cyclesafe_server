@@ -137,18 +137,6 @@ fi
 if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   dbecho="echo"
   dbecho=""
-  # these paths link back to the current dir for server, as of now
-  # server links
-  $dbecho rm -v -f ./res/gps_scored_route.json
-  # server files
-  $dbecho rm -v -f ./res/gps_input_route.json
-  # entry point from model to server for links
-  $dbecho rm -v -f ./${modelgendir}/server
-
-  # model links 
-  $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
-  # model files
-  $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
 
   # hard-clean
   if [[ ${step} == "reset" ]]; then
