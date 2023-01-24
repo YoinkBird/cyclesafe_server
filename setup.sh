@@ -83,6 +83,10 @@ app_name_modelgen="cs_modelgen"
 image_tag_modelgen="latest"
 image_name_modelgen="${docker_user}/${app_name_modelgen}:${image_tag_modelgen}"
 
+volume_name="cs_pseudo_ipc"
+volume_id="$(docker volume create ${volume_name})"
+
+
 # TODO: build server image - provisional step to enable containerisation
 # ...
 
@@ -150,6 +154,8 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
 
   # mock-test links
   $dbecho rm -v -f ./res/gps_input_route_test.json
+  # remove volume; cleans up generated files
+  docker volume rm ${volume_name}
 
   # hard-clean
   if [[ ${step} == "reset" ]]; then
@@ -225,7 +231,7 @@ if [[ ${step} == "launch" ]]; then
 
   # startup
   # if 'docker: Error response from daemon: driver failed programming external connectivity on endpoint cs_server_8009 (64c7...): Bind for 0.0.0.0:8009 failed: port is already allocated.', could just be from re-running
-  docker run -d -p ${urlPort}:8009 --name "${server_container_name}" ${image_name_server}
+  docker run -d -p ${urlPort}:8009 -v ${volume_name}:/data:rw --name "${server_container_name}" ${image_name_server}
   # was already useless # server_pid=$!
   echo $?
   # if server already running, the new PID just gets confusing
