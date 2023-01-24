@@ -215,6 +215,8 @@ $ bash -cxe '(exit 9) && (exit 1) || (exit 20); echo "END: $?"'; echo $?
 
 ```
 
+**Fix: Update test**:
+
 Update curl-based interface tests to verify response instead of just relying on return code, since server doesn't always return appropriate HTTP error codes for internal errors.
 
 * configure links to point to Docker volume to enable easy removal
@@ -238,6 +240,7 @@ convert orchestration to docker-compose, for now.
 
 server POST response shouldn't return the full json body, only a 200: TODO
 server GET should propagate errors from the runhook: TODO
+create dedicated model test; replace steps within verify step with a standalone test, either in the model repo, or in the server repo (if for some reason the input/output depends on the server): TODO
 
 
 server should propagate error: TODO

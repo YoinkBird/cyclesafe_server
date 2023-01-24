@@ -210,12 +210,36 @@ fi
 if [[ ${step} == "verify" ]]; then
 
   #-------------------------------------------------------------------------------- 
-  echo "VERIFY POST:"
-  # mock client map-ui - upload json
-  #+ src: https://stackoverflow.com/a/7173011
-  curl --fail-early -w "http_code:[%{http_code}]" --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json
+  # disable exit-on-error to manually verify based on output or error codes
+  set +e
+  echo "START VERIFY"
 
   #-------------------------------------------------------------------------------- 
+  echo "VERIFY POST:"
+  # mock client map-ui - upload json
+  # test plan: send request, expect response to have input json returned; a hacky strategy, to be changed in https://github.com/YoinkBird/cyclesafe_server/issues/20, since this currently is an interface test being used to validate the implementation; there's no real need to verify anything but the HTTP return code.
+  #+ src: https://stackoverflow.com/a/7173011
+  echo "CMD: curl --fail-early -w \"http_code:[%{http_code}]\" --header \"Content-Type: application/json\" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json"
+  resp="$(curl -s --fail-early --header "Content-Type: application/json" ${urlJsonServerRestPost} --data @${modelgendir}/t/route_json/gps_generic.json)"
+  # jq-based verification:
+  command -v jq > /dev/null
+  rc=$?
+  if [[ "${rc}" -eq 0 ]]; then
+    # diff src: https://stackoverflow.com/a/37175540
+    diff <(jq < ${modelgendir}/t/route_json/gps_generic.json) <(echo "${resp}" | jq) > /dev/null
+    rc=$?
+    if [[ "${rc}" -ne 0 ]]; then
+      echo "ERROR: invalid response for POST: request json does not match response json"
+      exit 1
+    fi
+  elif [[ "${resp}" == "" ]]; then
+    echo "ERROR: invalid response for POST: response is empty (expected response json)"
+    exit 1
+  fi
+
+  #-------------------------------------------------------------------------------- 
+  # re-enable exit-on-error to rely solely on error codes
+  set -e
   # HACK
   echo "HACK: VERIFY SUCCESFFUL ORCHESTRATION USING GET"
   # test plan: "orchestration testing" - check for known-errors resulting from incorrect configuration (i.e. if orchestration worked, this will pass).
@@ -223,20 +247,35 @@ if [[ ${step} == "verify" ]]; then
   curl -s "${urlJsonServerRestGet}" > /dev/null 2>&1
   # Note: 'grep' will return zero if there is a match; '&& false' ensures that the successful grep $?==0 actually returns false and gets caught by 'set -e'. If there is no match, i.e. logs are clean, the unsuccessful grep $?==1 will be "suppressed" by the '&&' operation and not be treated as a failed command
   docker container logs "${server_container_name}" 2>&1 | (! grep "prepare_json.sh:\|python3: can't open file")
+  # disable exit-on-error to manually verify based on output or error codes
+  set +e
 
   #-------------------------------------------------------------------------------- 
   echo ""
   echo "VERIFY GET:"
   # mock client map-ui - retrieve json
-  curl --fail-early -w "http_code:[%{http_code}]" ${urlJsonServerRestGet}
+ # test plan: Simply ensuring that the GET is successul; this is essentially verifying that the orchestration worked correctly. Note that, ideally, the live response could be compared against a static response; however, with ML models, it's non-trivial to simply compare the actual response against an expected response since the predictions can vary based on the dataset. To this end, some sort of fuzzy matching would be needed, or perhaps simply check the returned keys without values, etc. See https://github.com/YoinkBird/cyclesafe_server/issues/21
+  # never mind the http_code; server returns 200 even for invalid queries as it doesn't have sane error handling
+  echo "CMD: curl -s --fail-early ${urlJsonServerRestGet}"
+  resp="$(curl -s --fail-early ${urlJsonServerRestGet})"
+  rc=$?
+  if [[ "${resp}" == "" ]]; then
+    echo "ERROR: empty response for GET"
+    exit 1
+  fi
 
   #-------------------------------------------------------------------------------- 
   echo ""
   echo "VERIFY GET HTML:"
   # mock client map-ui - retrieve json
-  curl --fail-early -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html
+  resp="$(curl -s --fail-early -w "http_code:[%{http_code}]" --output /dev/null ${urlJsonServer}/directions.html)"
+  if [[ "${resp}" != 'http_code:[200]' ]]; then
+    echo "ERROR: empty response for GET HTML"
+  fi
 
   #-------------------------------------------------------------------------------- 
+  # re-enable exit-on-error to rely solely on error codes
+  set -e
   echo ""
   echo "END VERIFY"
 
