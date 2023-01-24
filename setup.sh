@@ -139,11 +139,7 @@ fi
 if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   dbecho="echo"
   dbecho=""
-  # these paths link back to the current dir for server, as of now
-  # server links
-  $dbecho rm -v -f ./res/gps_scored_route.json
-  # server files
-  $dbecho rm -v -f ./res/gps_input_route.json
+  # TODO: figure this one out; probably will be generated within the container and don't need to be processed at all
   # server files - keyed, list of them, need to process. for now just remove in the subsequent line
   if [[ -r ./list_gen_gps_input_route_json.txt ]]; then
     $dbecho cat ./list_gen_gps_input_route_json.txt
@@ -151,16 +147,6 @@ if [[ ${step} == "clean" ]] || [[ ${step} == "reset" ]]; then
   fi
   # server files - keyed
   $dbecho rm -v -f ./res/gps_input_route.json_*
-
-  # entry point from model to server for links
-  $dbecho rm -v -f ./${modelgendir}/server
-
-  # model links 
-  $dbecho rm -v -f ./${modelgendir}/output/gps_input_route.json
-  # model files
-  $dbecho rm -v -f ./${modelgendir}/output/gps_scored_route.json
-  # remove pickled model
-  $dbecho rm -v -f ./${modelgendir}/output/human_read_dectree.pkl
 
   # mock-test links
   $dbecho rm -v -f ./res/gps_input_route_test.json
