@@ -221,6 +221,30 @@ Update curl-based interface tests to verify response instead of just relying on 
 
 ## Iterate, Round 3: Convert Pseudo-IPC to use image dir/container volume
 
+* [ ] "prepare": replace link spaghetti with a top-level dir - with a few links
+* [ ] comment out symlinks
+
+Current State of Links:
+ ```bash
+# Run full orchestration (build, launch, verify):
+$ ./setup.sh
+$ docker exec -it cs_server_8009 sh -cx 'ls -ltr /app/server/res; ls -ltr /app/modelgen/output'
++ ls -ltr /app/server/res
+total 8
+lrwxrwxrwx 1 root root   42 Jan 24 22:26 gps_scored_route.json -> /app/modelgen/output/gps_scored_route.json
+-rw-r--r-- 1 root root 6262 Jan 24 22:26 gps_input_route.json
++ ls -ltr /app/modelgen/output
+total 728
+-rw-rw-r-- 1 root root 156228 Jan 23 22:40 crashes_500_1530.html
+-rw-rw-r-- 1 root root  16408 Jan 23 22:40 crashes_300_330.html
+-rw-rw-r-- 1 root root  99250 Jan 23 22:40 crashes_1900_500.html
+-rw-rw-r-- 1 root root 111291 Jan 23 22:40 crashes_1530_1900.html
+-rw-rw-r-- 1 root root 337149 Jan 23 22:40 crashes.html
+lrwxrwxrwx 1 root root     36 Jan 24 22:26 gps_input_route.json -> /app/server/res/gps_input_route.json
+-rw-r--r-- 1 root root   2503 Jan 24 22:27 human_read_dectree.pkl
+-rw-r--r-- 1 root root    299 Jan 24 22:27 gps_scored_route.json
+```
+
 * configure links to point to Docker volume to enable easy removal
 
 # FUTURE:
