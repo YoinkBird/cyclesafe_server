@@ -221,8 +221,8 @@ Update curl-based interface tests to verify response instead of just relying on 
 
 ## Iterate, Round 3: Convert Pseudo-IPC to use image dir/container volume
 
-* [ ] "prepare": replace link spaghetti with a top-level dir - with a few links
-* [ ] comment out symlinks
+* [x] "prepare": replace link spaghetti with a top-level dir - with a few links
+* [x] comment out provisional Dockerfile symlinks
 
 Current State of Links:
  ```bash
@@ -244,6 +244,34 @@ lrwxrwxrwx 1 root root     36 Jan 24 22:26 gps_input_route.json -> /app/server/r
 -rw-r--r-- 1 root root   2503 Jan 24 22:27 human_read_dectree.pkl
 -rw-r--r-- 1 root root    299 Jan 24 22:27 gps_scored_route.json
 ```
+
+After Dockerfile update:
+
+```bash
+# clear old results
+$ ./setup.sh kill
+# Run full orchestration (build, launch, verify):
+$ ./setup.sh
+$ docker exec -it cs_server_8009 sh -cx 'ls -ltr /data; ls -ltr /app/server/res; ls -ltr /app/modelgen/output'
++ ls -ltr /data
+total 736
+-rw-rw-r-- 1 root root 156228 Jan 23 22:40 crashes_500_1530.html
+-rw-rw-r-- 1 root root  16408 Jan 23 22:40 crashes_300_330.html
+-rw-rw-r-- 1 root root  99250 Jan 23 22:40 crashes_1900_500.html
+-rw-rw-r-- 1 root root 111291 Jan 23 22:40 crashes_1530_1900.html
+-rw-rw-r-- 1 root root 337149 Jan 23 22:40 crashes.html
+-rw-r--r-- 1 root root   6262 Jan 24 22:38 gps_input_route.json
+-rw-r--r-- 1 root root   2503 Jan 24 22:38 human_read_dectree.pkl
+-rw-r--r-- 1 root root    298 Jan 24 22:38 gps_scored_route.json
++ ls -ltr /app/server/res
+lrwxrwxrwx 1 root root 5 Jan 24 22:38 /app/server/res -> /data
++ ls -ltr /app/modelgen/output
+lrwxrwxrwx 1 root root 5 Jan 24 22:38 /app/modelgen/output -> /data
+```
+Looks good:
+* .html files show up
+* server/res generated gps_input_route.json is present
+* model/output generated gps_scored_route.json is present, as is the pickled model human_read_dectree.pkl
 
 * configure links to point to Docker volume to enable easy removal
 

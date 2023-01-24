@@ -19,17 +19,25 @@ RUN rm -rf /app/server/modelgen
 COPY modelgen /app/modelgen
 #RUN rm -rf /app/modelgen/ && mv /app/
 
+# data storage
+WORKDIR /
+# consolidate the data passing directories
+RUN mv /app/modelgen/output /data
+WORKDIR /data
+RUN ln -vs /data /app/modelgen/output
+RUN rm -r /app/server/res && ln -vs /data /app/server/res
+
 # setup pseudo-IPC via symlinks, files, and directories
 # ./res/    : server reads/writes here
 # ./output/ : model  reads/writes here
 # NOTE: not optimising these RUN commands at all because they should be temporary!
 # single entry point from model to server, i.e. links go through <modeldir>/server
-RUN ln -v -s /app/server /app/modelgen/server
+#RUN ln -v -s /app/server /app/modelgen/server
 ## files from model:
 ### output from server to model : the map json route received from web
-RUN ln -f -v -s /app/server/res/gps_input_route.json /app/modelgen/output/gps_input_route.json
+#RUN ln -f -v -s /app/server/res/gps_input_route.json /app/modelgen/output/gps_input_route.json
 ### input to server from model : the scored json route scored by the model
-RUN ln -v -s /app/modelgen/output/gps_scored_route.json /app/server/res/gps_scored_route.json 
+#RUN ln -v -s /app/modelgen/output/gps_scored_route.json /app/server/res/gps_scored_route.json 
 
 WORKDIR /app/server
 
