@@ -96,7 +96,7 @@ git clean -xdf
 
 Runs, browser launches without errors from server
 
-## Iterate: Move hacks from setup.sh into Docker
+## Iterate, Round 2: Move hacks from setup.sh into Docker
 
 ### step: prepare, part 2
 
