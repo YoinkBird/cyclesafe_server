@@ -103,7 +103,9 @@ Runs, browser launches without errors from server
 Move "pseudo IPC" into Docker, no longer using setup.sh to manage.
 
 Break the "subdirectory" philosophy:
-* implement parallel hierarchy in Docker
+* [x] implement parallel hierarchy in Docker
+* [x] "prepare": move link creation into Dockerfile out of setup.sh
+* configure links to point to Docker volume to enable easy removal
 
 
 # FUTURE:
