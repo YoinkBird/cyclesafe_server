@@ -238,12 +238,12 @@ convert orchestration to docker-compose, for now.
 
 # ISSUES
 
-server POST response shouldn't return the full json body, only a 200: TODO
-server GET should propagate errors from the runhook: TODO
-create dedicated model test; replace steps within verify step with a standalone test, either in the model repo, or in the server repo (if for some reason the input/output depends on the server): TODO
+update server response for POST; server POST response shouldn't return the full json body, only a 200: https://github.com/YoinkBird/cyclesafe_server/issues/20
+server GET should propagate errors from the runhook: https://github.com/YoinkBird/cyclesafe_server/issues/22
+create dedicated model test; replace steps within verify step with a standalone test, either in the model repo, or in the server repo (if for some reason the input/output depends on the server): https://github.com/YoinkBird/cyclesafe_server/issues/23
 
 
-server should propagate error: TODO
+server should propagate error on invalid GET: https://github.com/YoinkBird/cyclesafe_server/issues/24
 ```
 Traceback (most recent call last):
   File "./code/model.py", line 1585, in <module>
@@ -259,7 +259,7 @@ FileNotFoundError: [Errno 2] No such file or directory: 'output/gps_input_route.
 ```
 
 
-convert curl tests to use `--fail` or `--fail-with-body` (both meant for server errors/HTTP codes), not `--fail-early` (meant for transmission errors): TODO
+convert curl tests to fail on http errors; convert curl tests to use `--fail` or `--fail-with-body` (both meant for server errors/HTTP codes), not `--fail-early` (meant for transmission errors): https://github.com/YoinkBird/cyclesafe_server/issues/25
 ```
 --fail
 (HTTP) Fail silently (no output at all) on server errors. 
