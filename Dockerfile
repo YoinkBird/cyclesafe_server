@@ -20,13 +20,12 @@ COPY modelgen /app/modelgen
 #RUN rm -rf /app/modelgen/ && mv /app/
 
 # data storage
-WORKDIR /
+WORKDIR /data
 # configure pseudo-IPC data-passing directories via symlinks
 # ./res/    : server reads/writes here
 # ./output/ : model  reads/writes here
-# hack - this dir has checked-in files
-RUN mv /app/modelgen/output /data
-WORKDIR /data
+# hack - run ... bash to get shopt to move the contents. verify later whether this is necessary, and for now just make whatever changes necessary to dockerfile
+RUN /bin/bash -c 'shopt -s dotglob; mv /app/modelgen/output/* /data/ && rm -rf /app/modelgen/output'
 RUN ln -vs /data /app/modelgen/output
 # hack - this dir exists, but needs to be a link
 RUN rm -r /app/server/res && ln -vs /data /app/server/res
