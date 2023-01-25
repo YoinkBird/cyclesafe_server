@@ -71,7 +71,7 @@ fi
 
 # default starting point
 if [[ ${runall} -eq 1 ]]; then
-  step="build";
+  step="prepare";
 fi
 
 # image information
@@ -84,8 +84,7 @@ image_tag_modelgen="latest"
 image_name_modelgen="${docker_user}/${app_name_modelgen}:${image_tag_modelgen}"
 
 volume_name="cs_pseudo_ipc"
-volume_id="$(docker volume create ${volume_name})"
-
+volume_id=""
 
 # TODO: build server image - provisional step to enable containerisation
 # ...
@@ -207,6 +206,14 @@ if [[ ${step} == "prepverif" ]]; then
   fi
 fi
 
+if [[ ${step} == "prepare" ]]; then
+  volume_id="$(docker volume create ${volume_name})"
+
+  if [[ ${runall} -eq 1 ]]; then
+    step="build"
+  fi
+fi
+
 # build server image - provisional step to enable containerisation
 if [[ "${step}" == "build" ]]; then
   docker build --tag ${image_name_server} .
@@ -314,6 +321,22 @@ if [[ ${step} == "verify" ]]; then
   if [[ "${resp}" != 'http_code:[200]' ]]; then
     echo "ERROR: empty response for GET HTML"
   fi
+
+  #-------------------------------------------------------------------------------- 
+  # re-enable exit-on-error to rely solely on error codes
+  set -e
+  echo ""
+  echo "VERIFY ORCHESTRATION VOLUME USAGE"
+  # list files which should exist after successful mounting and API interaction
+  volume_list="$(docker run -it --rm -v cs_pseudo_ipc:/data python:3.7-bullseye ls -l /data)"
+  # Note: for verbosity, set empty to see output
+  grep_opt_quiet=""
+  grep_opt_quiet="-q"
+  echo "${volume_list}" | grep ${grep_opt_quiet} "gps_input_route.json"
+  echo "${volume_list}" | grep ${grep_opt_quiet} "gps_scored_route.json"
+  echo "${volume_list}" | grep ${grep_opt_quiet} "human_read_dectree.pkl"
+  # disable exit-on-error to manually verify based on output or error codes
+  set +e
 
   #-------------------------------------------------------------------------------- 
   # re-enable exit-on-error to rely solely on error codes
