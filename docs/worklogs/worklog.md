@@ -277,7 +277,9 @@ Looks good:
 
 * [ ] containerise: convert the orchestration steps to use docker volume: https://docs.docker.com/storage/volumes/
 * [x] clean+reset
-* [ ] prepare 
+* [x] prepare
+* [x] launch
+* [x] verify
 
 Verify:
 
@@ -307,6 +309,21 @@ total 736
 ```
 
 Niiiceee
+
+Verify contents of volume by mounting it from an independent container.
+```bash
+$ docker run -it --rm -v cs_pseudo_ipc:/data python:3.7-bullseye ls -ltr /data
+total 736
+-rw-rw-r-- 1 root root 156228 Jan 23 22:40 crashes_500_1530.html
+-rw-rw-r-- 1 root root  16408 Jan 23 22:40 crashes_300_330.html
+-rw-rw-r-- 1 root root  99250 Jan 23 22:40 crashes_1900_500.html
+-rw-rw-r-- 1 root root 111291 Jan 23 22:40 crashes_1530_1900.html
+-rw-rw-r-- 1 root root 337149 Jan 23 22:40 crashes.html
+-rw-r--r-- 1 root root   6262 Jan 24 23:35 gps_input_route.json
+-rw-r--r-- 1 root root   2503 Jan 24 23:35 human_read_dectree.pkl
+-rw-r--r-- 1 root root    299 Jan 24 23:35 gps_scored_route.json
+
+```
 
 
 # Phase 4
