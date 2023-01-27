@@ -17,7 +17,7 @@ dev_dep:
 
 dev: prepare
 	docker build --tag ${IMAGE_NAME_SERVER} . && \
-		docker run --rm -it --entrypoint bash ${IMAGE_NAME_SERVER}
+		docker run --rm -it -v ${volume_name}:/data:rw --entrypoint bash ${IMAGE_NAME_SERVER}
 
 
 run: prepare build
