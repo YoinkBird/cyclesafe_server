@@ -29,8 +29,9 @@ RUN /bin/bash -c 'shopt -s dotglob; mv /app/modelgen/output/* /data/ && rm -rf /
 RUN ln -vs /data /app/modelgen/output
 # hack - this dir exists, but needs to be a link
 RUN rm -r /app/server/res && ln -vs /data /app/server/res
-
 WORKDIR /app/server
+# hack - enabling import_model_180908
+RUN ln -s /app/modelgen .
 
 CMD ["./server.py", "8009"]
 ENTRYPOINT ["python3"]
