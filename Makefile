@@ -13,11 +13,11 @@ build:
 
 dev_dep:
 	docker build --tag ${IMAGE_NAME_SERVER} . && \
-		docker run --rm -it -v ${PWD}:/src:rw --entrypoint bash ${IMAGE_NAME_SERVER}
+		docker run --rm -it -v ${volume_name}:/data:rw -v ${PWD}:/app/server:rw --entrypoint bash ${IMAGE_NAME_SERVER}
 
 dev: prepare
 	docker build --tag ${IMAGE_NAME_SERVER} . && \
-		docker run --rm -it -v ${volume_name}:/data:rw --entrypoint bash ${IMAGE_NAME_SERVER}
+		docker run --rm -it -v ${volume_name}:/data:rw -v ${PWD}:/app/server:ro --entrypoint bash ${IMAGE_NAME_SERVER}
 
 
 run: prepare build
