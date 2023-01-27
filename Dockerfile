@@ -30,8 +30,8 @@ RUN ln -vs /data /app/modelgen/output
 # hack - this dir exists, but needs to be a link
 RUN rm -r /app/server/res && ln -vs /data /app/server/res
 WORKDIR /app/server
-# hack - enabling import_model_180908
-RUN ln -s /app/modelgen .
+# hack - enabling module import for modelgen from parallel dir
+ENV PYTHONPATH=${PYTHONPATH:+${PYTHONPATH}:}/app
 
 CMD ["./server.py", "8009"]
 ENTRYPOINT ["python3"]
