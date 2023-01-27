@@ -332,8 +332,8 @@ if [[ ${step} == "verify" ]]; then
   # Note: for verbosity, set empty to see output
   grep_opt_quiet=""
   grep_opt_quiet="-q"
-  echo "${volume_list}" | grep ${grep_opt_quiet} "gps_input_route.json"
-  echo "${volume_list}" | grep ${grep_opt_quiet} "gps_scored_route.json"
+  echo "${volume_list}" | grep ${grep_opt_quiet} "gps_input_route.*.json"
+  #not for direct import# echo "${volume_list}" | grep ${grep_opt_quiet} "gps_scored_route.json"
   echo "${volume_list}" | grep ${grep_opt_quiet} "human_read_dectree.pkl"
   # disable exit-on-error to manually verify based on output or error codes
   set +e
