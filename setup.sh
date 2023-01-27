@@ -338,6 +338,10 @@ if [[ ${step} == "verify" ]]; then
   # disable exit-on-error to manually verify based on output or error codes
   set +e
 
+  echo "VERIFY ORCHESTRATION IMAGE PYTHONPATH"
+  docker inspect ${image_name_server} | jq '.[].ContainerConfig.Env' | grep PYTHONPATH
+
+
   #-------------------------------------------------------------------------------- 
   # re-enable exit-on-error to rely solely on error codes
   set -e
