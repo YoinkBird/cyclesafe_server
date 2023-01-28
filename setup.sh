@@ -329,7 +329,7 @@ if [[ ${step} == "verify" ]]; then
   echo "VERIFY ORCHESTRATION VOLUME USAGE"
   # list files which should exist after successful mounting and API interaction
   set -x
-  volume_list="$(docker run -it --rm -v cs_pseudo_ipc:/data python:3.7-bullseye ls -l /data)"
+  volume_list="$(docker run --rm -v cs_pseudo_ipc:/data python:3.7-bullseye ls -l /data)"
   set +x
   # Note: for verbosity, set empty to see output
   grep_opt_quiet="-q"
