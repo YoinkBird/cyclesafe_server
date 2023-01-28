@@ -328,10 +328,12 @@ if [[ ${step} == "verify" ]]; then
   echo ""
   echo "VERIFY ORCHESTRATION VOLUME USAGE"
   # list files which should exist after successful mounting and API interaction
+  set -x
   volume_list="$(docker run -it --rm -v cs_pseudo_ipc:/data python:3.7-bullseye ls -l /data)"
+  set +x
   # Note: for verbosity, set empty to see output
-  grep_opt_quiet=""
   grep_opt_quiet="-q"
+  grep_opt_quiet=""
   echo "${volume_list}" | grep ${grep_opt_quiet} "gps_input_route.*.json"
   #not for direct import# echo "${volume_list}" | grep ${grep_opt_quiet} "gps_scored_route.json"
   echo "${volume_list}" | grep ${grep_opt_quiet} "human_read_dectree.pkl"
