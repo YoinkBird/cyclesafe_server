@@ -1,0 +1,16 @@
+name: ServerRouteScoring
+run-name: E2E server testing
+on: [push]
+jobs:
+  Containerized-Server-Integration-Test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "event ${{ github.event_name }}, os ${{ runner.os }}, branch ${{ github.ref }}, repo ${{ github.repository }}"
+      - name: Check out repo code
+        uses: actions/checkout@v3
+      - run: echo "status repo ${{ github.repository }} has been cloned to the runner"
+      - name: echo "files in repo"
+        run: |
+          ls ${{ github.workspaces }}
+      - name: Run E2E Demo
+        run: ./setup.sh

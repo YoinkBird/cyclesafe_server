@@ -33,7 +33,7 @@ def gen_storage_key():
     # generate random key
     return random.randint(10000,
                           99999)
-
+# TODO: rename to `filename`, since it's not a path
 def gen_filepath_for_key( filepath, key="12346"):
     filepath = "%s_%s" % (filepath,key)
     return filepath
@@ -77,15 +77,18 @@ def get_model_results(**kwargs):
         # update the filepath
         if ( 'filepath' in kwargs):
             filepath = kwargs['filepath']
+#            print( f"get_model_results: filepath: {filepath}" )
             options_local['local_json_input'] = filepath
         # update the key and filepath-for-key
         if ( 'key' in kwargs):
             key = kwargs['key']
+#            print( f"get_model_results: key: {key}" )
             # could be set to 'false'
             if ( key ):
                 options_local['request_key'] = key
                 options_local['local_json_input'] = gen_filepath_for_key( options_local['local_json_input'] , key)
         # load geodata
+#        print( f"get_model_results: load geodata from {options_local['local_json_input']}" )
         geodata = load_json_file(options_local['local_json_input'])
     # load data, featdef, etc
     (data, data_dummies, df_int_nonan, featdef) = model.model_prepare(**options_local)
@@ -157,8 +160,8 @@ def save_json_file(response_json, filename, genkey=True):
         if( isinstance( genkey , int ) ):
             key = genkey
         filepath = gen_filepath_for_key( "%s/%s" % (resource_dir, filename) , key)
-    # if ( quiet != 1):
-    #     print("mock-response sending to : " + filepath)
+    if ( quiet != 1):
+        print("response saving to : " + filepath)
     with open(filepath, 'w') as outfile:
        json.dump(response_json, outfile)
 
