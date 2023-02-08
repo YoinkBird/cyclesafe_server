@@ -1,6 +1,5 @@
 # Cycle Safe Server and UI for Model Generation
 
-![container test](https://github.com/YoinkBird/cyclesafe_server/actions/workflows/github-actions.yml/badge.svg)
 [![container test](https://github.com/YoinkBird/cyclesafe_server/actions/workflows/github-actions.yml/badge.svg?branch=main)](https://github.com/YoinkBird/cyclesafe_server/actions?query=branch%3Amain)
 
 Server, UI, Test Framework, and Orchestration for the 
